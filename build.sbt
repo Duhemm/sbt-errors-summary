@@ -7,3 +7,4 @@ name := "sbt-errors-summary"
 description := "sbt plugin to show a summary of compilation messages."
 scalacOptions ++=
   Seq("-deprecation", "-feature", "-unchecked", "-Xlint", "-Ywarn-all")
+licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
