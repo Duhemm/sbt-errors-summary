@@ -23,3 +23,12 @@ This plugin helps by summarizing all the errors per file.
 [error] /main/scala/Bar.scala: 2 [0]
 [error] /main/scala/Foo.scala: 3 [3], 4 [1], 10 [2]
 ```
+
+# Installation
+
+Simply add the following to your sbt configuration:
+
+```scala
+resolvers += Resolver.bintrayIvyRepo("duhemm", "sbt-plugins")
+addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.1.0")
+```
