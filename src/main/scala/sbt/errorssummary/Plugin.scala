@@ -10,8 +10,8 @@ object Plugin extends AutoPlugin {
 
   override def projectSettings: Seq[Setting[_]] =
     Seq(
-      compilerReporter in (Compile, compile) := {
-        val parent    = (compilerReporter in (Compile, compile)).value
+      compilerReporter in compile := {
+        val parent    = (compilerReporter in compile).value
         val logger    = streams.value.log
         val sourceDir = sourceDirectory.value.getAbsolutePath
         Some(new ConciseReporter(logger, sourceDir, parent))
