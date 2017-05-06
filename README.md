@@ -1,4 +1,4 @@
-#sbt-errors-summary
+# sbt-errors-summary
 
 A simple plugin that makes the error reporter a bit more concise.
 
@@ -30,5 +30,14 @@ Simply add the following to your sbt configuration:
 
 ```scala
 resolvers += Resolver.bintrayIvyRepo("duhemm", "sbt-plugins")
-addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.1.0")
+addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.2.0")
 ```
+
+# Changelog
+
+## 0.2.0
+ - Apply `compilerReporter` to `Compile` and `Test` configurations,
+   by @jvican and @Duhemm in #1 and #2.
+
+## 0.1.0
+ - Initial version
