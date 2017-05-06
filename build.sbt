@@ -1,6 +1,6 @@
 lazy val errorsSummary = project.in(file("."))
 
-version := "0.2.0"
+version := "0.3.0-SNAPSHOT"
 sbtPlugin := true
 organization := "org.duhemm"
 name := "sbt-errors-summary"
