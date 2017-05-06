@@ -36,8 +36,10 @@ addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.2.0")
 # Changelog
 
 ## 0.2.0
- - Apply `compilerReporter` to `Compile` and `Test` configurations,
-   by @jvican and @Duhemm in #1 and #2.
+ - Apply `compilerReporter` to `Compile` and `Test` configurations, by
+   [@jvican](https://github.com/jvican) and   [@Duhemm](https://github.com/Duhemm)
+   in [#1](https://github.com/Duhemm/sbt-errors-summary/pull/1) and
+   [#2](https://github.com/Duhemm/sbt-errors-summary/pull/2).
 
 ## 0.1.0
  - Initial version
