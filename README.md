@@ -29,7 +29,6 @@ This plugin helps by summarizing all the errors per file.
 Simply add the following to your sbt configuration:
 
 ```scala
-resolvers += Resolver.bintrayIvyRepo("duhemm", "sbt-plugins")
 addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.2.0")
 ```
 
