@@ -127,7 +127,8 @@ private class ConciseReporter(logger: Logger,
     val line = problem.position.pline
     val text =
       s"${file}:${line}: ${problem.message}".stripMargin
-    prefixed(s"[${problem.id}] ", text)
+    val extraSpace = if (problem.severity == Severity.Warn) " " else ""
+    prefixed(s"$extraSpace[${problem.id}] ", text)
   }
 
   /**
