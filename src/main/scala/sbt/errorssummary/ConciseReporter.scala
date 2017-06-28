@@ -43,7 +43,8 @@ private class ConciseReporter(logger: Logger,
         else if (hasWarnings(_problems)) logger.warn(line)
         else logger.info(line)
 
-    _problems.groupBy(_.position.pfile)
+    _problems
+      .groupBy(_.position.pfile)
       .foreach {
         case (file, inFile) =>
           val sorted =
