@@ -17,6 +17,7 @@ object Plugin extends AutoPlugin {
       val parent    = (compilerReporter in compile).value
       val logger    = streams.value.log
       val sourceDir = sourceDirectory.value.getAbsolutePath
-      Some(new ConciseReporter(logger, sourceDir, parent))
+      val reporter  = new ConciseReporter(logger, sourceDir, parent)
+      Some(reporter)
     }
 }
