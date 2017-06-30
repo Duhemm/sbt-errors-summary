@@ -94,7 +94,7 @@ private class ConciseReporter(logger: Logger,
    * @return The absolute path of `file` with `base` stripped.
    */
   private def showPath(file: File): String =
-    file.getAbsolutePath.stripPrefix(base)
+    Option(file).map(_.getAbsolutePath.stripPrefix(base)).getOrElse("Unknown")
 
   /**
    * Shows `str` with color `color`.
