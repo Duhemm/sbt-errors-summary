@@ -7,3 +7,12 @@ jdk:
 
 script:
   - sbt "setupTests" "test2106:test" "test21111:test" "test2122:test"
+
+cache:
+  directories:
+    - $HOME/.ivy2/cache
+    - $HOME/.sbt/booe
+
+before_cache:
+  - find $HOME/.ivy2 -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt  -name "*.lock"               -print -delete
