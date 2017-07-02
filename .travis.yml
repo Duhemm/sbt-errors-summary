@@ -2,5 +2,8 @@ language: scala
 scala:
   - 2.10.6
 
+jdk:
+  - oraclejdk8
+
 script:
   - sbt "setupTests" "test2106:test" "test21111:test" "test2122:test"
