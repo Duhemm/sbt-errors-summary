@@ -2,7 +2,7 @@ package sbt
 package errorssummary
 
 import xsbti.{Problem, Severity}
-import compiler.Compiler
+import compiler.CompilerLoader
 import org.scalatest.{FlatSpec, Matchers}
 
 class ConciseReporterSpec extends FlatSpec with Matchers {
@@ -64,7 +64,7 @@ class ConciseReporterSpec extends FlatSpec with Matchers {
       fn: (Array[Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger
     val reporter = new ConciseReporter(logger, "", None)
-    val compiler = new Compiler(reporter)
+    val compiler = CompilerLoader.load(reporter)
     compiler.compile(code)
     reporter.printSummary()
     fn(reporter.problems, logger.getAll())

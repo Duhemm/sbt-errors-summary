@@ -1,13 +1,10 @@
-package sbt
-package errorssummary
-package compiler
+package cross
 
 import xsbti.{Maybe, Reporter}
 
 import scala.reflect.internal.util.{BatchSourceFile, NoFile}
 import scala.reflect.internal.util.Position
 
-import scala.tools.nsc.util.CommandLineParser
 import scala.tools.nsc.{CompilerCommand, Global, Settings}
 import scala.tools.nsc.io.VirtualDirectory
 import scala.tools.nsc.reporters.{AbstractReporter, Reporter => NSCReporter}
@@ -15,7 +12,7 @@ import scala.tools.nsc.reporters.{AbstractReporter, Reporter => NSCReporter}
 /**
  * Helper object to compile code snippets to a virtual directory.
  */
-class Compiler(reporter: Reporter) {
+class Compiler(reporter: Reporter) extends CompilerAPI {
 
   case class CompilationFailed(msg: String) extends Exception(msg)
 
@@ -25,7 +22,7 @@ class Compiler(reporter: Reporter) {
   def compile(code: String, options: String*): Unit = {
     val (wrappedCode, posFn) = wrap(code)
 
-    val cpOpt       = Seq("-cp", sys.props("sbt.class.directory"))
+    val cpOpt       = Seq("-cp", sys.props("test.compiler.cp"))
     val nscReporter = xsbt.WrappedReporter(reporter, posFn)
     val global      = getCompiler(nscReporter, options = cpOpt ++ options: _*)
 
@@ -44,8 +41,7 @@ class Compiler(reporter: Reporter) {
     // I don't really know how I can reset the compiler after a run, nor what else
     // should also be reset, so for now this method creates new instances of everything,
     // which is not so cool.
-    val arguments = CommandLineParser.tokenize(options mkString " ")
-    val command   = new CompilerCommand(arguments.toList, reportError _)
+    val command   = new CompilerCommand(options.toList, reportError _)
     val outputDir = new VirtualDirectory("(memory)", None)
     command.settings.outputDirs setSingleOutput outputDir
 
@@ -79,6 +75,8 @@ class Compiler(reporter: Reporter) {
     orig =>
       new xsbti.Position {
         import scala.language.implicitConversions
+        private implicit def m2o[T](m: Maybe[T]): Option[T] =
+          if (m.isDefined) Some(m.get) else None
         private implicit def o2m[T](o: Option[T]): Maybe[T] =
           o.map(Maybe.just(_)).getOrElse(Maybe.nothing[T])
 
