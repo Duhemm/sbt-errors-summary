@@ -2,20 +2,18 @@ package sbt
 package errorssummary
 
 import xsbti.{Problem, Severity}
-import compiler.CompilerLoader
-import org.scalatest.{FlatSpec, Matchers}
 
-class ConciseReporterSpec extends FlatSpec with Matchers {
+class ConciseReporterSpec extends CompilerSpec {
 
-  it should "collect errors" in collectMessagesFor("foobar") {
-    (problems, messages) =>
-      problems should have length 1
-      messages should have length 2
+  s"A `ConciseReporter` running $scalaVersion" should "collect errors" in collectMessagesFor(
+    "foobar") { (problems, messages) =>
+    problems should have length 1
+    messages should have length 2
 
-      val problem = problems(0)
+    val problem = problems(0)
 
-      problem.severity shouldBe Severity.Error
-      problem.position.line.get shouldBe 1
+    problem.severity shouldBe Severity.Error
+    problem.position.line.get shouldBe 1
   }
 
   it should "collect errors in multi line snippets" in collectMessagesFor {
@@ -64,8 +62,7 @@ class ConciseReporterSpec extends FlatSpec with Matchers {
       fn: (Array[Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger
     val reporter = new ConciseReporter(logger, "", None)
-    val compiler = CompilerLoader.load(reporter)
-    compiler.compile(code)
+    compile(reporter, code)
     reporter.printSummary()
     fn(reporter.problems, logger.getAll())
   }
