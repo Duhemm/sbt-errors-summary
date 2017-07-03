@@ -54,6 +54,9 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
       test in testConfig := {
         (test in Test).dependsOn(fullClasspath in testConfig).value
       },
+      testOnly in testConfig := {
+        (testOnly in Test).dependsOn(fullClasspath in testConfig).evaluated
+      },
       fullClasspath in testConfig := {
         val ci = getCompilerInterface(appConfiguration.value,
                                       scalaCompilerBridgeSource.value,
