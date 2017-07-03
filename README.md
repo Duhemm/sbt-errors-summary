@@ -32,11 +32,15 @@ This plugin helps by summarizing all the errors per file.
 
 # Installation
 
-Simply add the following to your sbt configuration:
+To enable this plugin globally, simply put the following in
+`~/.sbt/0.13/plugins/plugins.sbt`:
 
 ```scala
 addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.3.0")
 ```
+
+You can also enable it for a specific project by putting the same line in
+`project/plugins.sbt` in your sbt project.
 
 # Changelog
 
