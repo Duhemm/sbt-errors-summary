@@ -62,7 +62,7 @@ private class ConciseReporter(logger: Logger,
 
   override def log(pos: Position, msg: String, sev: Severity): Unit = {
     parent.foreach(_.log(pos, msg, sev))
-    _problems += Problem(_problems.length, sev, msg, pos)
+    _problems += Problem(_problems.length + 1, sev, msg, pos)
   }
 
   override def comment(pos: Position, msg: String): Unit =
