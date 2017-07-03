@@ -4,7 +4,7 @@ package errorssummary
 import xsbti.{Position, Reporter, Severity}
 
 import java.io.File
-import scala.Console.{BLUE, CYAN, RED, RESET, YELLOW}
+import scala.Console.{BLUE, CYAN, RED, RESET, UNDERLINED, YELLOW}
 import scala.compat.Platform.EOL
 
 /**
@@ -127,7 +127,7 @@ private class ConciseReporter(logger: Logger,
     val file = problem.position.pfile
     val line = problem.position.pline
     val text =
-      s"""${file}:${line}:
+      s"""${colored(UNDERLINED, file)}:${colored(colorFor(problem), line.toString)}:
          |${problem.message}
          |${problem.position.lineContent}
          |${problem.position.pointerSpace
@@ -138,18 +138,26 @@ private class ConciseReporter(logger: Logger,
   }
 
   /**
+   * Retrieves the right color to use for `problem` based on Severity.
+   *
+   * @param problem The problem to show.
+   * @return The ANSI string to set the right color.
+   */
+  private def colorFor(problem: Problem): String =
+    problem.severity match {
+      case Severity.Info  => CYAN
+      case Severity.Error => RED
+      case Severity.Warn  => YELLOW
+    }
+
+  /**
    * Shows the line at which `problem` occured and the id of the problem.
    *
    * @param problem The problem to show
    * @return A formatted string that shows the line of the problem and its id.
    */
   private def showProblemLine(problem: Problem): String = {
-    val color =
-      problem.severity match {
-        case Severity.Info  => CYAN
-        case Severity.Error => RED
-        case Severity.Warn  => YELLOW
-      }
+    val color = colorFor(problem)
     colored(color, problem.position.pline.toString) + colored(
       BLUE,
       s" [${problem.id}]")
