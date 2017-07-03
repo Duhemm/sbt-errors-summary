@@ -127,7 +127,8 @@ private class ConciseReporter(logger: Logger,
     val file = problem.position.pfile
     val line = problem.position.pline
     val text =
-      s"""${file}:${line}: ${problem.message}
+      s"""${file}:${line}:
+         |${problem.message}
          |${problem.position.lineContent}
          |${problem.position.pointerSpace
            .map(sp => s"$sp^")
