@@ -8,7 +8,7 @@ trait ConciseReporterSpec { self: CompilerSpec =>
   def collectMessagesFor[T](code: String)(
       fn: (Array[Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger
-    val reporter = new ConciseReporter(logger, "", None)
+    val reporter = new ConciseReporter(logger, false, "", None)
     compile(reporter, code)
     reporter.printSummary()
     fn(reporter.problems, logger.getAll())
