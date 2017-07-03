@@ -31,7 +31,7 @@ object Plugin extends AutoPlugin {
 
       // We don't shorten paths if we're inside Emacs
       val sourceDir =
-        if (insideEmacs) "" else sourceDirectory.value.getAbsolutePath
+        if (insideEmacs) "" else sys.props("user.dir")
 
       val reporter =
         new ConciseReporter(logger, enableColors, sourceDir, parent)
