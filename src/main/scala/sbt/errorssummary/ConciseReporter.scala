@@ -15,6 +15,7 @@ import scala.compat.Platform.EOL
  * @param parent Another reporter that should also receive the messages.
  */
 private class ConciseReporter(logger: Logger,
+                              enableColors: Boolean,
                               base: String,
                               parent: Option[Reporter])
     extends Reporter {
@@ -104,7 +105,8 @@ private class ConciseReporter(logger: Logger,
    * @return The colored string.
    */
   private def colored(color: String, str: String): String =
-    s"${RESET}${color}${str}${RESET}"
+    if (enableColors) s"${RESET}${color}${str}${RESET}"
+    else str
 
   /**
    * Put a prefix `prefix` at the beginning of `paragraph`, indents all lines.
@@ -127,7 +129,8 @@ private class ConciseReporter(logger: Logger,
     val file = problem.position.pfile
     val line = problem.position.pline
     val text =
-      s"""${colored(UNDERLINED, file)}:${colored(colorFor(problem), line.toString)}:
+      s"""${colored(UNDERLINED, file)}:${colored(colorFor(problem),
+                                                 line.toString)}:
          |${problem.message}
          |${problem.position.lineContent}
          |${problem.position.pointerSpace
