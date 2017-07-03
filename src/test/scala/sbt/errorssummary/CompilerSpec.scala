@@ -5,11 +5,11 @@ import compiler.CompilerLoader
 import xsbti.Reporter
 import org.scalatest.{FlatSpec, Matchers}
 
-abstract class CompilerSpec extends FlatSpec with Matchers {
+trait CompilerSpec {
   protected val scalaVersion = sys.props("test.scala.version")
 
-  def compile(reporter: Reporter, code: String): Unit = {
+  def compile(reporter: Reporter, code: String, options: String*): Unit = {
     val compiler = CompilerLoader.load(reporter)
-    compiler.compile(code)
+    compiler.compile(code, options: _*)
   }
 }

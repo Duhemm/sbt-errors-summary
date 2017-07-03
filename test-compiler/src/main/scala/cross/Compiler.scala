@@ -5,7 +5,7 @@ import xsbti.{Maybe, Reporter}
 import scala.reflect.internal.util.{BatchSourceFile, NoFile}
 import scala.reflect.internal.util.Position
 
-import scala.tools.nsc.{CompilerCommand, Global, Settings}
+import scala.tools.nsc.{CompilerCommand, Global}
 import scala.tools.nsc.io.VirtualDirectory
 import scala.tools.nsc.reporters.{AbstractReporter, Reporter => NSCReporter}
 
@@ -22,9 +22,8 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
   def compile(code: String, options: String*): Unit = {
     val (wrappedCode, posFn) = wrap(code)
 
-    val cpOpt       = Seq("-cp", sys.props("test.compiler.cp"))
-    val nscReporter = xsbt.WrappedReporter(reporter, posFn)
-    val global      = getCompiler(nscReporter, options = cpOpt ++ options: _*)
+    val cpOpt  = Seq("-cp", sys.props("test.compiler.cp"))
+    val global = getCompiler(posFn, options = cpOpt ++ options: _*)
 
     import global._
     val source = new BatchSourceFile(NoFile, wrappedCode)
@@ -36,16 +35,21 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
 
   /**
    * Returns an instance of `Global` configured according to the given options.
+   * @param posFn   How to transform position to account for code transformation.
+   * @param options Options to pass to scalac
+   * @return An instance of `Global`.
    */
-  private def getCompiler(reporter: NSCReporter, options: String*): Global = {
+  private def getCompiler(posFn: xsbti.Position => xsbti.Position,
+                          options: String*): Global = {
     // I don't really know how I can reset the compiler after a run, nor what else
     // should also be reset, so for now this method creates new instances of everything,
     // which is not so cool.
-    val command   = new CompilerCommand(options.toList, reportError _)
-    val outputDir = new VirtualDirectory("(memory)", None)
+    val command     = new CompilerCommand(options.toList, reportError _)
+    val nscReporter = xsbt.WrappedReporter(command.settings, reporter, posFn)
+    val outputDir   = new VirtualDirectory("(memory)", None)
     command.settings.outputDirs setSingleOutput outputDir
 
-    new Global(command.settings, reporter)
+    new Global(command.settings, nscReporter)
   }
 
   /**
