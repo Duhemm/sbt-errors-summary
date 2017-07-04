@@ -5,8 +5,8 @@ import xsbti.Problem
 
 trait ConciseReporterSpec { self: CompilerSpec =>
 
-  private val defaultConfig: ReporterConfig =
-    ReporterConfig(colors = false, shortenPaths = false)
+  val defaultConfig: ReporterConfig =
+    ReporterConfig(colors = false, shortenPaths = false, columnNumbers = false)
 
   def collectMessagesFor[T](code: String,
                             config: ReporterConfig = defaultConfig,

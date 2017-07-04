@@ -65,8 +65,8 @@ class BasicConciseReporterSpec
 
   it should "respect colors setting" in {
     val code                = """error"""
-    val configWithColors    = ReporterConfig(colors = true, shortenPaths = false)
-    val configWithoutColors = configWithColors.withColors(false)
+    val configWithColors    = defaultConfig.withColors(true)
+    val configWithoutColors = defaultConfig.withColors(false)
     val expectedText        = "[1] /tmp/src.scala:1:"
 
     collectMessagesFor(code, configWithColors) { (problems, messages) =>
@@ -89,28 +89,59 @@ class BasicConciseReporterSpec
   }
 
   it should "strip prefix if told to" in {
-    val code = """error"""
-    val configWithFullPaths =
-      ReporterConfig(colors = false, shortenPaths = true)
-    val expectedText = "[1] src.scala:1:"
+    val code                     = """error"""
+    val configWithShortenedPaths = defaultConfig.withShortenPaths(true)
+    val expectedText             = "[1] src.scala:1:"
 
-    collectMessagesFor(code, configWithFullPaths) { (problems, messages) =>
-      problems should have length 1
+    collectMessagesFor(code, configWithShortenedPaths) {
+      (problems, messages) =>
+        problems should have length 1
 
-      messages should have length 2
-      val (_, msg) = messages.head
-      val lines    = msg.split(EOL)
-      lines(0) shouldBe expectedText
+        messages should have length 2
+        val (_, msg) = messages.head
+        val lines    = msg.split(EOL)
+        lines(0) shouldBe expectedText
     }
   }
 
   it should "not strip prefix if told not to" in {
-    val code = """error"""
-    val configWithoutFullPaths =
-      ReporterConfig(colors = false, shortenPaths = false)
-    val expectedText = "[1] /tmp/src.scala:1:"
+    val code                        = """error"""
+    val configWithoutShortenedPaths = defaultConfig.withShortenPaths(false)
+    val expectedText                = "[1] /tmp/src.scala:1:"
 
-    collectMessagesFor(code, configWithoutFullPaths) { (problems, messages) =>
+    collectMessagesFor(code, configWithoutShortenedPaths) {
+      (problems, messages) =>
+        problems should have length 1
+
+        messages should have length 2
+        val (_, msg) = messages.head
+        val lines    = msg.split(EOL)
+        lines(0) shouldBe expectedText
+    }
+  }
+
+  it should "not show colum numbers when told not to" in {
+    val code                       = """error"""
+    val configWithoutColumnNumbers = defaultConfig.withColumnNumbers(false)
+    val expectedText               = "[1] /tmp/src.scala:1:"
+
+    collectMessagesFor(code, configWithoutColumnNumbers) {
+      (problems, messages) =>
+        problems should have length 1
+
+        messages should have length 2
+        val (_, msg) = messages.head
+        val lines    = msg.split(EOL)
+        lines(0) shouldBe expectedText
+    }
+  }
+
+  it should "show colum numbers when told to" in {
+    val code                    = """    error""".stripMargin
+    val configWithColumnNumbers = defaultConfig.withColumnNumbers(true)
+    val expectedText            = "[1] /tmp/src.scala:1:5:"
+
+    collectMessagesFor(code, configWithColumnNumbers) { (problems, messages) =>
       problems should have length 1
 
       messages should have length 2

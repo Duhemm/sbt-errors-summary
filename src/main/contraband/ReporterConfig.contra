@@ -4,4 +4,5 @@ package sbt.errorssummary
 type ReporterConfig {
     colors: Boolean!
     shortenPaths: Boolean!
+    columnNumbers: Boolean!
 }
