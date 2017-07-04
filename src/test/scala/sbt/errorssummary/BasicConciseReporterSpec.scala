@@ -1,6 +1,7 @@
 package sbt
 package errorssummary
 
+import scala.compat.Platform.EOL
 import org.scalatest.{FlatSpec, Matchers}
 import xsbti.{Problem, Severity}
 
@@ -60,5 +61,62 @@ class BasicConciseReporterSpec
 
     problems(0).severity shouldBe Severity.Error
     problems(0).position.line.get shouldBe 2
+  }
+
+  it should "respect colors setting" in {
+    val code                = """error"""
+    val configWithColors    = ReporterConfig(colors = true, shortenPaths = false)
+    val configWithoutColors = configWithColors.withColors(false)
+    val expectedText        = "[1] /tmp/src.scala:1:"
+
+    collectMessagesFor(code, configWithColors) { (problems, messages) =>
+      problems should have length 1
+
+      messages should have length 2
+      val (_, msg) = messages.head
+      val lines    = msg.split(EOL)
+      lines(0).length should be > expectedText.length
+    }
+
+    collectMessagesFor(code, configWithoutColors) { (problems, messages) =>
+      problems should have length 1
+
+      messages should have length 2
+      val (_, msg) = messages.head
+      val lines    = msg.split(EOL)
+      lines(0) shouldBe expectedText
+    }
+  }
+
+  it should "strip prefix if told to" in {
+    val code = """error"""
+    val configWithFullPaths =
+      ReporterConfig(colors = false, shortenPaths = true)
+    val expectedText = "[1] src.scala:1:"
+
+    collectMessagesFor(code, configWithFullPaths) { (problems, messages) =>
+      problems should have length 1
+
+      messages should have length 2
+      val (_, msg) = messages.head
+      val lines    = msg.split(EOL)
+      lines(0) shouldBe expectedText
+    }
+  }
+
+  it should "not strip prefix if told not to" in {
+    val code = """error"""
+    val configWithoutFullPaths =
+      ReporterConfig(colors = false, shortenPaths = false)
+    val expectedText = "[1] /tmp/src.scala:1:"
+
+    collectMessagesFor(code, configWithoutFullPaths) { (problems, messages) =>
+      problems should have length 1
+
+      messages should have length 2
+      val (_, msg) = messages.head
+      val lines    = msg.split(EOL)
+      lines(0) shouldBe expectedText
+    }
   }
 }

@@ -15,9 +15,9 @@ import scala.compat.Platform.EOL
  * @param parent Another reporter that should also receive the messages.
  */
 private class ConciseReporter(logger: Logger,
-                              enableColors: Boolean,
                               base: String,
-                              parent: Option[Reporter])
+                              parent: Option[Reporter],
+                              config: ReporterConfig)
     extends Reporter {
 
   private val _problems = collection.mutable.ArrayBuffer.empty[Problem]
@@ -89,23 +89,29 @@ private class ConciseReporter(logger: Logger,
     problems.exists(_.severity == Severity.Warn)
 
   /**
-   * Returns the absolute path of `file` with `base` stripped.
+   * Returns the absolute path of `file` with `base` stripped, if the reporter
+   * if configured with `shortenPaths = true`.
    *
    * @param file The file whose path to show.
-   * @return The absolute path of `file` with `base` stripped.
+   * @return The absolute path of `file` with `base` stripped if `shortenPaths = true`,
+   *         or the original path otherwise.
    */
-  private def showPath(file: File): String =
-    Option(file).map(_.getAbsolutePath.stripPrefix(base)).getOrElse("Unknown")
+  private def showPath(file: File): String = {
+    val absolutePath = Option(file).map(_.getAbsolutePath).getOrElse("unknown")
+    if (config.shortenPaths) absolutePath.stripPrefix(base)
+    else absolutePath
+  }
 
   /**
-   * Shows `str` with color `color`.
+   * Shows `str` with color `color` if the reporter is configured with
+   * `colors = true`.
    *
    * @param color The color to use
    * @param str   The string to color.
-   * @return The colored string.
+   * @return The colored string if `colors = true`, `str` otherwise.
    */
   private def colored(color: String, str: String): String =
-    if (enableColors) s"${RESET}${color}${str}${RESET}"
+    if (config.colors) s"${RESET}${color}${str}${RESET}"
     else str
 
   /**

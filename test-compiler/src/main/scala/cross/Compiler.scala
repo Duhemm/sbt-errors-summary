@@ -17,13 +17,14 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
   case class CompilationFailed(msg: String) extends Exception(msg)
 
   /**
-   * Compiles the given code, passing the given options to the compiler
+   * Compiles the given code, passing the given options to the compiler.
+   * Positions will be adapted to be as if the source was in `filePath`.
    */
-  def compile(code: String, options: String*): Unit = {
-    val (wrappedCode, posFn) = wrap(code)
-
-    val cpOpt  = Seq("-cp", sys.props("test.compiler.cp"))
-    val global = getCompiler(posFn, options = cpOpt ++ options: _*)
+  def compile(code: String, options: Array[String], filePath: String): Unit = {
+    val (wrappedCode, posFn0) = wrap(code)
+    val posFn                 = setSourceFile(filePath, posFn0)
+    val cpOpt                 = Seq("-cp", sys.props("test.compiler.cp"))
+    val global                = getCompiler(posFn, options = cpOpt ++ options: _*)
 
     import global._
     val source = new BatchSourceFile(NoFile, wrappedCode)
@@ -71,39 +72,66 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
        mapPos(_ - 1, identity))
   }
 
+  /** Sets the source file to `source` in a position. */
+  private def setSourceFile(
+      source: String,
+      fn: xsbti.Position => xsbti.Position): xsbti.Position => xsbti.Position =
+    orig =>
+      new MyPosition(fn(orig)) {
+        override def sourceFile(): xsbti.Maybe[java.io.File] =
+          xsbti.Maybe.just(new java.io.File(source))
+
+        override def sourcePath(): xsbti.Maybe[String] =
+          xsbti.Maybe.just(source)
+    }
+
   /**
    * Creates a position mapping function
    */
   private def mapPos(lineFn: Int => Int,
                      colFn: Int => Int): xsbti.Position => xsbti.Position =
-    orig =>
-      new xsbti.Position {
-        import scala.language.implicitConversions
-        private implicit def m2o[T](m: Maybe[T]): Option[T] =
-          if (m.isDefined) Some(m.get) else None
-        private implicit def o2m[T](o: Option[T]): Maybe[T] =
-          o.map(Maybe.just(_)).getOrElse(Maybe.nothing[T])
+    new MyPosition(_) {
+      override def line(): xsbti.Maybe[Integer] =
+        orig.line().map(l => lineFn(l.toInt): Integer)
 
-        def line(): xsbti.Maybe[Integer] =
-          orig.line().map(l => lineFn(l.toInt): Integer)
+      override def offset(): xsbti.Maybe[Integer] =
+        orig.offset().map(c => colFn(c.toInt): Integer)
 
-        def lineContent(): String =
-          orig.lineContent()
+      override def pointer(): xsbti.Maybe[Integer] =
+        orig.pointer().map(c => colFn(c.toInt): Integer)
 
-        def offset(): xsbti.Maybe[Integer] =
-          orig.offset().map(c => colFn(c.toInt): Integer)
-
-        def pointer(): xsbti.Maybe[Integer] =
-          orig.pointer().map(c => colFn(c.toInt): Integer)
-
-        def pointerSpace(): xsbti.Maybe[String] =
-          orig.pointerSpace().map(s => " " * colFn(s.length))
-
-        def sourceFile(): xsbti.Maybe[java.io.File] =
-          orig.sourceFile()
-
-        def sourcePath(): xsbti.Maybe[String] =
-          orig.sourcePath()
+      override def pointerSpace(): xsbti.Maybe[String] =
+        orig.pointerSpace().map(s => " " * colFn(s.length))
     }
+
+  private class MyPosition(protected val orig: xsbti.Position)
+      extends xsbti.Position {
+    import scala.language.implicitConversions
+    protected implicit def m2o[T](m: Maybe[T]): Option[T] =
+      if (m.isDefined) Some(m.get) else None
+    protected implicit def o2m[T](o: Option[T]): Maybe[T] =
+      o.map(Maybe.just(_)).getOrElse(Maybe.nothing[T])
+
+    def line(): xsbti.Maybe[Integer] =
+      orig.line()
+
+    def lineContent(): String =
+      orig.lineContent()
+
+    def offset(): xsbti.Maybe[Integer] =
+      orig.offset()
+
+    def pointer(): xsbti.Maybe[Integer] =
+      orig.pointer()
+
+    def pointerSpace(): xsbti.Maybe[String] =
+      orig.pointerSpace()
+
+    def sourceFile(): xsbti.Maybe[java.io.File] =
+      orig.sourceFile()
+
+    def sourcePath(): xsbti.Maybe[String] =
+      orig.sourcePath()
+  }
 
 }

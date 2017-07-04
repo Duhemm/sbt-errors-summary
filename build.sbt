@@ -20,9 +20,11 @@ lazy val errorsSummary =
       scalacOptions ++=
         Seq("-deprecation", "-feature", "-unchecked", "-Xlint", "-Ywarn-all"),
       licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
-      libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % Test
+      libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % Test,
+      sourceManaged in (Compile, generateContrabands) := baseDirectory.value / "src" / "main" / "contraband-scala"
     )
     .settings(testVersions.flatMap(testSetup))
+    .enablePlugins(ContrabandPlugin)
     .dependsOn(testAPI % Test)
 
 lazy val testCompiler =
