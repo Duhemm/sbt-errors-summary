@@ -8,6 +8,10 @@ immediately see what's wrong when looking at the faulty line.
 
 This plugin helps by summarizing all the errors per file.
 
+Side by side comparison (this plugin on the left, origin on the right):
+
+![side-by-side.png](side-by-side.png)
+
 ```
 [info] Compiling 2 Scala sources to /Users/martin/Desktop/foo/target/scala-2.12/classes...
 [error] [1] /src/main/scala/Bar.scala:2:
