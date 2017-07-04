@@ -1,7 +1,7 @@
 package sbt
 package errorssummary
 
-import xsbti.{Position, Reporter, Severity}
+import xsbti.{Maybe, Position, Reporter, Severity}
 
 import java.io.File
 import scala.Console.{BLUE, CYAN, RED, RESET, UNDERLINED, YELLOW}
@@ -132,11 +132,13 @@ private class ConciseReporter(logger: Logger,
    * @return The full error message.
    */
   private def showText(problem: Problem): String = {
-    val file = problem.position.pfile
-    val line = problem.position.pline
+    val file    = problem.position.pfile
+    val line    = problem.position.pline
+    val offset  = problem.position.poffset
+    val showCol = if (config.columnNumbers) s"${offset + 1}:" else ""
     val text =
       s"""${colored(UNDERLINED, file)}:${colored(colorFor(problem),
-                                                 line.toString)}:
+                                                 line.toString)}:$showCol
          |${problem.message}
          |${problem.position.lineContent}
          |${problem.position.pointerSpace
@@ -175,14 +177,34 @@ private class ConciseReporter(logger: Logger,
   implicit class MyPosition(position: Position) {
     def pfile: String = position.sourceFile.map(showPath).getOrElse("unknown")
     def pline: Int    = position.line.map(_.toInt).getOrElse(0)
+    def poffset: Int  = position.offset.map(_.toInt).getOrElse(0)
   }
 
   private case class Problem(id: Int,
                              severity: Severity,
                              message: String,
-                             position: Position)
+                             rawPosition: Position)
       extends xsbti.Problem {
     override val category: String = ""
+
+    override val position: Position = new Position {
+      def offset: Maybe[Integer] =
+        pointerSpace
+          .map(s => Maybe.just(s.length: Integer))
+          .getOrElse(Maybe.nothing[Integer])
+
+      def line(): Maybe[Integer] = rawPosition.line()
+
+      def lineContent(): String = rawPosition.lineContent()
+
+      def pointer(): Maybe[Integer] = rawPosition.pointer()
+
+      def pointerSpace(): Maybe[String] = rawPosition.pointerSpace()
+
+      def sourceFile(): Maybe[File] = rawPosition.sourceFile()
+
+      def sourcePath(): Maybe[String] = rawPosition.sourcePath()
+    }
   }
 
 }

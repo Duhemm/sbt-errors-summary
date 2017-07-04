@@ -17,7 +17,9 @@ object Plugin extends AutoPlugin {
   import autoImport._
 
   override def globalSettings: Seq[Setting[_]] = Seq(
-    reporterConfig := ReporterConfig(colors = true, shortenPaths = false)
+    reporterConfig := ReporterConfig(colors = true,
+                                     shortenPaths = true,
+                                     columnNumbers = false)
   )
 
   override def projectSettings: Seq[Setting[_]] =
