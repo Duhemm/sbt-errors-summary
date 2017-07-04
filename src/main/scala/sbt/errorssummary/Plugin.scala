@@ -15,13 +15,13 @@ object Plugin extends AutoPlugin {
       inConfig(Test)(reporterSettings)
 
   private val insideEmacs =
-    sys.props.contains("INSIDE_EMACS")
+    sys.env.contains("INSIDE_EMACS")
 
   private val inCI =
     System.console() == null ||
-      sys.props.get("CI").exists(_ == "true") ||
-      sys.props.get("CONTINUOUS_INTEGRATION").exists(_ == "true") ||
-      sys.props.contains("BUILD_NUMBER")
+      sys.env.get("CI").exists(_ == "true") ||
+      sys.env.get("CONTINUOUS_INTEGRATION").exists(_ == "true") ||
+      sys.env.contains("BUILD_NUMBER")
 
   private val reporterSettings =
     compilerReporter in compile := {
