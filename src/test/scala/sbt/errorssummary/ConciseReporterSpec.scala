@@ -5,11 +5,17 @@ import xsbti.Problem
 
 trait ConciseReporterSpec { self: CompilerSpec =>
 
-  def collectMessagesFor[T](code: String)(
+  private val defaultConfig: ReporterConfig =
+    ReporterConfig(colors = false, shortenPaths = false)
+
+  def collectMessagesFor[T](code: String,
+                            config: ReporterConfig = defaultConfig,
+                            filePath: String = "/tmp/src.scala",
+                            base: String = "/tmp/")(
       fn: (Array[Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger
-    val reporter = new ConciseReporter(logger, false, "", None)
-    compile(reporter, code)
+    val reporter = new ConciseReporter(logger, base, None, config)
+    compile(reporter, code, Seq.empty, filePath)
     reporter.printSummary()
     fn(reporter.problems, logger.getAll())
   }

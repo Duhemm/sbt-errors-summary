@@ -10,33 +10,30 @@ object Plugin extends AutoPlugin {
   override def requires = sbt.plugins.JvmPlugin
   override def trigger  = allRequirements
 
+  object autoImport {
+    val reporterConfig: SettingKey[ReporterConfig] =
+      settingKey[ReporterConfig]("Configuration of the error reporter")
+  }
+  import autoImport._
+
+  override def globalSettings: Seq[Setting[_]] = Seq(
+    reporterConfig := ReporterConfig(colors = true, shortenPaths = false)
+  )
+
   override def projectSettings: Seq[Setting[_]] =
     inConfig(Compile)(reporterSettings) ++
       inConfig(Test)(reporterSettings)
 
-  private val insideEmacs =
-    sys.props.contains("INSIDE_EMACS")
-
-  private val inCI =
-    System.console() == null ||
-      sys.props.get("CI").exists(_ == "true") ||
-      sys.props.get("CONTINUOUS_INTEGRATION").exists(_ == "true") ||
-      sys.props.contains("BUILD_NUMBER")
-
-  private val reporterSettings =
+  private val reporterSettings = Seq(
     compilerReporter in compile := {
-      val parent = (compilerReporter in compile).value
-      val logger = streams.value.log
-
-      // Disable color in Emacs and CI
-      val enableColors = !(insideEmacs || inCI)
-
-      // We don't shorten paths if we're inside Emacs
-      val sourceDir =
-        if (insideEmacs) "" else sys.props("user.dir") + File.separator
+      val logger  = streams.value.log
+      val baseDir = sys.props("user.dir")
+      val parent  = (compilerReporter in compile).value
+      val config  = (reporterConfig in compile).value
 
       val reporter =
-        new ConciseReporter(logger, enableColors, sourceDir, parent)
+        new ConciseReporter(logger, baseDir, parent, config)
       Some(reporter)
     }
+  )
 }

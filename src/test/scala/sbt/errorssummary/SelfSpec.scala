@@ -82,6 +82,20 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
     }
   }
 
+  it should "set the sourcefile" in {
+    val code       = """error"""
+    val reporter   = new BasicReporter
+    val sourceFile = "/foo/bar/src.scala"
+    compile(reporter, code, Seq.empty, sourceFile)
+
+    reporter.problems should have length 1
+    val problem = reporter.problems()(0)
+    problem.position.sourceFile.isDefined shouldBe true
+    problem.position.sourceFile.get shouldBe file(sourceFile)
+    problem.position.sourcePath.isDefined shouldBe true
+    problem.position.sourcePath.get shouldBe sourceFile
+  }
+
   private class BasicReporter extends xsbti.Reporter {
     val msgs: Buffer[(Severity, Position, String)] = Buffer.empty
 

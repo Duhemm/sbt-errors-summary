@@ -1,5 +1,5 @@
 package cross;
 
 public interface CompilerAPI {
-    void compile(String code, String... options);
+    void compile(String code, String options[], String filePath);
 }

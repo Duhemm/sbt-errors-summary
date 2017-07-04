@@ -1,0 +1,7 @@
+package sbt.errorssummary
+@target(Scala)
+
+type ReporterConfig {
+    colors: Boolean!
+    shortenPaths: Boolean!
+}
