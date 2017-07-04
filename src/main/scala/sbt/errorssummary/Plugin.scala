@@ -4,6 +4,8 @@ package errorssummary
 import sbt.AutoPlugin
 import sbt.Keys.{compile, compilerReporter, sourceDirectory, streams}
 
+import java.io.File
+
 object Plugin extends AutoPlugin {
   override def requires = sbt.plugins.JvmPlugin
   override def trigger  = allRequirements
@@ -31,7 +33,7 @@ object Plugin extends AutoPlugin {
 
       // We don't shorten paths if we're inside Emacs
       val sourceDir =
-        if (insideEmacs) "" else sys.props("user.dir")
+        if (insideEmacs) "" else sys.props("user.dir") + File.separator
 
       val reporter =
         new ConciseReporter(logger, enableColors, sourceDir, parent)
