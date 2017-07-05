@@ -5,10 +5,13 @@ import sbt.AutoPlugin
 import sbt.Keys.{
   compile,
   compilerReporter,
+  maxErrors,
+  printWarnings,
   sourceDirectory,
   sourcePositionMappers,
   streams
 }
+import xsbti.Severity
 
 import java.io.File
 
@@ -43,6 +46,24 @@ object Plugin extends AutoPlugin {
       val reporter =
         new ConciseReporter(logger, baseDir, parent, spms, config)
       Some(reporter)
+    },
+    printWarnings := {
+      val maybeReporter = (compilerReporter in compile).value
+      val analysis      = compile.value
+      val problems = analysis.infos.allInfos.values.flatMap(i =>
+        i.reportedProblems ++ i.unreportedProblems)
+      val maximumErrors = maxErrors.value
+      var errorCount    = 0
+      for {
+        reporter <- maybeReporter;
+        p        <- problems
+        if p.severity != Severity.Error || errorCount < maximumErrors
+      } {
+        if (p.severity == Severity.Error) errorCount += 1
+        reporter.log(p.position, p.message, p.severity)
+      }
+
+      maybeReporter.foreach(_.printSummary())
     }
   )
 }
