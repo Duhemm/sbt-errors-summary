@@ -14,7 +14,7 @@ trait ConciseReporterSpec { self: CompilerSpec =>
                             base: String = "/tmp/")(
       fn: (Array[Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger
-    val reporter = new ConciseReporter(logger, base, None, config)
+    val reporter = new ConciseReporter(logger, base, None, identity, config)
     compile(reporter, code, Seq.empty, filePath)
     reporter.printSummary()
     fn(reporter.problems, logger.getAll())
