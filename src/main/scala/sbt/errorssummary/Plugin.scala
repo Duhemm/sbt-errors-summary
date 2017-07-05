@@ -2,7 +2,13 @@ package sbt
 package errorssummary
 
 import sbt.AutoPlugin
-import sbt.Keys.{compile, compilerReporter, sourceDirectory, streams}
+import sbt.Keys.{
+  compile,
+  compilerReporter,
+  sourceDirectory,
+  sourcePositionMappers,
+  streams
+}
 
 import java.io.File
 
@@ -31,10 +37,11 @@ object Plugin extends AutoPlugin {
       val logger  = streams.value.log
       val baseDir = sys.props("user.dir")
       val parent  = (compilerReporter in compile).value
+      val spms    = Compiler.foldMappers(sourcePositionMappers.value)
       val config  = (reporterConfig in compile).value
 
       val reporter =
-        new ConciseReporter(logger, baseDir, parent, config)
+        new ConciseReporter(logger, baseDir, parent, spms, config)
       Some(reporter)
     }
   )

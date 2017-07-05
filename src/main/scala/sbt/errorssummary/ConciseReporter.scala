@@ -17,6 +17,7 @@ import scala.compat.Platform.EOL
 private class ConciseReporter(logger: Logger,
                               base: String,
                               parent: Option[Reporter],
+                              sourcePositionMapper: Position => Position,
                               config: ReporterConfig)
     extends Reporter {
 
@@ -63,7 +64,9 @@ private class ConciseReporter(logger: Logger,
 
   override def log(pos: Position, msg: String, sev: Severity): Unit = {
     parent.foreach(_.log(pos, msg, sev))
-    _problems += Problem(_problems.length + 1, sev, msg, pos)
+
+    val mappedPos = sourcePositionMapper(pos)
+    _problems += Problem(_problems.length + 1, sev, msg, mappedPos)
   }
 
   override def comment(pos: Position, msg: String): Unit =
