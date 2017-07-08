@@ -14,22 +14,22 @@ Side by side comparison (this plugin on the left, origin on the right):
 
 ```
 [info] Compiling 2 Scala sources to /Users/martin/Desktop/foo/target/scala-2.12/classes...
-[error] [1] /src/main/scala/Bar.scala:2:
+[error] [1] src/main/scala/Bar.scala:2:
 [error]     type mismatch;
 [error]      found   : String("")
 [error]      required: Int
 [error]       val x: Int = ""
 [error]                    ^
-[warn]  [2] /src/main/scala/Bar.scala:4:
+[warn]  [2] src/main/scala/Bar.scala:4:
 [warn]      @deprecated now takes two arguments; see the scaladoc.
 [warn]        @deprecated
 [warn]         ^
-[error] [3] /src/main/scala/Foo.scala:2:
+[error] [3] src/main/scala/Foo.scala:2:
 [error]     not found: value foobar
 [error]       def foo: String = foobar
 [error]                         ^
-[error] /src/main/scala/Bar.scala: 2 [1], 4 [2]
-[error] /src/main/scala/Foo.scala: 2 [3]
+[error] src/main/scala/Bar.scala: 2 [1], 4 [2]
+[error] src/main/scala/Foo.scala: 2 [3]
 [error] (compile:compileIncremental) Compilation failed
 [error] Total time: 0 s, completed Jul 3, 2017 3:00:27 PM
 ```
@@ -40,13 +40,22 @@ To enable this plugin globally, simply put the following in
 `~/.sbt/0.13/plugins/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.3.0")
+addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.4.0")
 ```
 
 You can also enable it for a specific project by putting the same line in
 `project/plugins.sbt` in your sbt project.
 
 # Changelog
+
+## 0.4.0
+ - Fix display of relative path in [#10](https://github.com/Duhemm/sbt-errors-summary/pull/10)
+ - Add `ReporterConfig` to configure how the reporter displays error messages in
+   [#15](https://github.com/Duhemm/sbt-errors-summary/pull/15)
+ - Add config option to show column number in
+   [#16](https://github.com/Duhemm/sbt-errors-summary/pull/16)
+ - Support source position mappers in [#17](https://github.com/Duhemm/sbt-errors-summary/pull/17)
+ - Support `printWarnings` task in [#18](https://github.com/Duhemm/sbt-errors-summary/pull/18)
 
 ## 0.3.0
  - Show offending line again
