@@ -38,7 +38,7 @@ object Plugin extends AutoPlugin {
   private val reporterSettings = Seq(
     compilerReporter in compile := {
       val logger  = streams.value.log
-      val baseDir = sys.props("user.dir")
+      val baseDir = sys.props("user.dir") + File.separator
       val parent  = (compilerReporter in compile).value
       val spms    = Compiler.foldMappers(sourcePositionMappers.value)
       val config  = (reporterConfig in compile).value
