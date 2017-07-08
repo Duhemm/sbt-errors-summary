@@ -48,6 +48,9 @@ You can also enable it for a specific project by putting the same line in
 
 # Changelog
 
+### 0.4.1
+ - Re-fix display of relative path in [#20](https://github.com/Duhemm/sbt-errors-summary/pull/20)
+
 ## 0.4.0
  - Fix display of relative path in [#10](https://github.com/Duhemm/sbt-errors-summary/pull/10)
  - Add `ReporterConfig` to configure how the reporter displays error messages in
