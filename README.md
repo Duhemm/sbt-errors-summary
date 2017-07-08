@@ -46,6 +46,49 @@ addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.4.0")
 You can also enable it for a specific project by putting the same line in
 `project/plugins.sbt` in your sbt project.
 
+# Configuration
+
+This reporter supports several configuration options that let you change how errors
+are reported. The configuration can be accessed via the `reporterConfig` setting key.
+A configuration is represented by an instance of a `ReporterConfig`, which is
+[generated from a Contraband schema](https://github.com/Duhemm/sbt-errors-summary/blob/master/src/main/contraband-scala/sbt/errorssummary/ReporterConfig.scala).
+
+The examples can be copy pasted directly inside you global settings in sbt (`~/.sbt/0.13/global.sbt`)
+or inside your build definition. If you enabled this plugin globally and want to configure it globally,
+you'll also need to add the following import:
+
+```scala
+import sbt.errorssummary.Plugin.autoImport._
+```
+
+or start sbt with `sbt.global.autoimport` set to `true`.
+
+The supported configuration options include:
+
+ - `colors: Boolean = true`:
+   Determines whether the reporter will produce a colored and formatted (as in bold,
+   underlined, etc.) output. Defaults to `true`.
+   Example:
+   ```scala
+   reporterConfig := reporterConfig.value.withColors(false)
+   ```
+
+ - `shortenPaths: Boolean = true`:
+   Determines whether the reporter will strip the current working directory from paths
+   it displays. Defaults to `true`.
+   Example:
+   ```scala
+   reporterConfig := reporterConfig.value.withShortenPaths(false)
+   ```
+
+ - `columnNumbers: Boolean = false`:
+   Determines whether the reporter will show the column number at which an error has been
+   recorded, Defaults to `false`.
+   Example:
+   ```scala
+   reporterConfig := reporterConfig.value.withColumnNumbers(false)
+   ```
+
 # Changelog
 
 ### 0.4.1
