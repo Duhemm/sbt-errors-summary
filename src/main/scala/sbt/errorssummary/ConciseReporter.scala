@@ -1,11 +1,17 @@
-package sbt
-package errorssummary
+package sbt.errorssummary
 
+import messages._
+
+import sbt.{maybeToOption, Logger}
 import xsbti.{Maybe, Position, Reporter, Severity}
 
 import java.io.File
-import scala.Console.{BLUE, CYAN, RED, RESET, UNDERLINED, YELLOW}
+import java.util.StringTokenizer
+
+import scala.Console._
 import scala.compat.Platform.EOL
+import scala.collection.mutable
+import scala.util.matching.Regex
 
 /**
  * A concise reporter that shows a summary of the lines with errors and warnings.
@@ -21,7 +27,7 @@ private class ConciseReporter(logger: Logger,
                               config: ReporterConfig)
     extends Reporter {
 
-  private val _problems = collection.mutable.ArrayBuffer.empty[Problem]
+  private val _problems = mutable.ArrayBuffer.empty[Problem]
 
   override def reset(): Unit = {
     parent.foreach(_.reset())
@@ -138,11 +144,12 @@ private class ConciseReporter(logger: Logger,
     val file    = problem.position.pfile
     val line    = problem.position.pline
     val offset  = problem.position.poffset
+    val message = smartMessage(problem.message)
     val showCol = if (config.columnNumbers) s"${offset + 1}:" else ""
     val text =
       s"""${colored(UNDERLINED, file)}:${colored(colorFor(problem),
                                                  line.toString)}:$showCol
-         |${problem.message}
+         |${message}
          |${problem.position.lineContent}
          |${problem.position.pointerSpace
            .map(sp => s"$sp^")
@@ -175,6 +182,13 @@ private class ConciseReporter(logger: Logger,
     colored(color, problem.position.pline.toString) + colored(
       BLUE,
       s" [${problem.id}]")
+  }
+
+  private def smartMessage(message: String): String = message match {
+    case TypeMismatchError(_, _) =>
+      TypeMismatchError.highlight(message, colored(RED, _), colored(GREEN, _))
+    case _ =>
+      message
   }
 
   implicit class MyPosition(position: Position) {
