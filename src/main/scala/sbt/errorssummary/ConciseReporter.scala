@@ -4,7 +4,7 @@ package errorssummary
 import xsbti.{Maybe, Position, Reporter, Severity}
 
 import java.io.File
-import scala.Console.{BLUE, CYAN, RED, RESET, UNDERLINED, YELLOW}
+import scala.Console.RESET
 import scala.compat.Platform.EOL
 
 /**
@@ -126,7 +126,7 @@ private class ConciseReporter(logger: Logger,
    */
   private def prefixed(prefix: String, paragraph: String): String =
     augmentString(paragraph).lines
-      .mkString(colored(BLUE, prefix), EOL + " " * prefix.length, "")
+      .mkString(colored(config.errorIdColor, prefix), EOL + " " * prefix.length, "")
 
   /**
    * Shows the full error message for `problem`.
@@ -140,7 +140,7 @@ private class ConciseReporter(logger: Logger,
     val offset  = problem.position.poffset
     val showCol = if (config.columnNumbers) s"${offset + 1}:" else ""
     val text =
-      s"""${colored(UNDERLINED, file)}:${colored(colorFor(problem),
+      s"""${colored(config.sourcePathColor, file)}:${colored(colorFor(problem),
                                                  line.toString)}:$showCol
          |${problem.message}
          |${problem.position.lineContent}
@@ -159,9 +159,9 @@ private class ConciseReporter(logger: Logger,
    */
   private def colorFor(problem: Problem): String =
     problem.severity match {
-      case Severity.Info  => CYAN
-      case Severity.Error => RED
-      case Severity.Warn  => YELLOW
+      case Severity.Info  => config.infoColor
+      case Severity.Error => config.errorColor
+      case Severity.Warn  => config.warningColor
     }
 
   /**
@@ -173,7 +173,7 @@ private class ConciseReporter(logger: Logger,
   private def showProblemLine(problem: Problem): String = {
     val color = colorFor(problem)
     colored(color, problem.position.pline.toString) + colored(
-      BLUE,
+      config.errorIdColor,
       s" [${problem.id}]")
   }
 

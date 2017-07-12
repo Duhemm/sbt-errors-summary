@@ -5,4 +5,10 @@ type ReporterConfig {
     colors: Boolean!
     shortenPaths: Boolean!
     columnNumbers: Boolean!
+    errorColor: String!
+    warningColor: String!
+    infoColor: String!
+    debugColor: String!
+    sourcePathColor: String!
+    errorIdColor: String!
 }
