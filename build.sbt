@@ -42,6 +42,7 @@ lazy val testAPI =
   project
     .in(file("test-api"))
     .settings(
+      libraryDependencies += "org.scala-sbt" % "interface" % sbtVersion.value,
       autoScalaLibrary := false,
       crossPaths := false
     )

@@ -2,7 +2,13 @@ package sbt.errorssummary
 @target(Scala)
 
 type ReporterConfig {
-    colors: Boolean!
-    shortenPaths: Boolean!
-    columnNumbers: Boolean!
+    colors: Boolean!         = true                          @since("0.0.1")
+    shortenPaths: Boolean!   = true                          @since("0.0.1")
+    columnNumbers: Boolean!  = false                         @since("0.0.1")
+    errorColor: String!      = raw"scala.Console.RED"        @since("0.5.0")
+    warningColor: String!    = raw"scala.Console.YELLOW"     @since("0.5.0")
+    infoColor: String!       = raw"scala.Console.CYAN"       @since("0.5.0")
+    debugColor: String!      = raw"scala.Console.WHITE"      @since("0.5.0")
+    sourcePathColor: String! = raw"scala.Console.UNDERLINED" @since("0.5.0")
+    errorIdColor: String!    = raw"scala.Console.BLUE"       @since("0.5.0")
 }

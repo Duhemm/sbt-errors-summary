@@ -13,6 +13,7 @@ import sbt.Keys.{
 }
 import xsbti.Severity
 
+import scala.Console._
 import java.io.File
 
 object Plugin extends AutoPlugin {
@@ -26,9 +27,7 @@ object Plugin extends AutoPlugin {
   import autoImport._
 
   override def globalSettings: Seq[Setting[_]] = Seq(
-    reporterConfig := ReporterConfig(colors = true,
-                                     shortenPaths = true,
-                                     columnNumbers = false)
+    reporterConfig := ReporterConfig()
   )
 
   override def projectSettings: Seq[Setting[_]] =

@@ -2,7 +2,7 @@ package sbt
 package errorssummary
 
 import org.scalatest.{FlatSpec, Matchers}
-import xsbti.{Position, Problem, Severity}
+import xsbti.{Maybe, Position, Problem, Severity}
 import scala.collection.mutable.Buffer
 
 class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
@@ -86,7 +86,7 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
     val code       = """error"""
     val reporter   = new BasicReporter
     val sourceFile = "/foo/bar/src.scala"
-    compile(reporter, code, Seq.empty, sourceFile)
+    compile(reporter, code, Seq.empty, Maybe.just(sourceFile))
 
     reporter.problems should have length 1
     val problem = reporter.problems()(0)

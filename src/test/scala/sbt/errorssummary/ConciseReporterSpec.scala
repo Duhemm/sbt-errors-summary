@@ -1,7 +1,7 @@
 package sbt
 package errorssummary
 
-import xsbti.Problem
+import xsbti.{Maybe, Problem}
 
 trait ConciseReporterSpec { self: CompilerSpec =>
 
@@ -10,7 +10,8 @@ trait ConciseReporterSpec { self: CompilerSpec =>
 
   def collectMessagesFor[T](code: String,
                             config: ReporterConfig = defaultConfig,
-                            filePath: String = "/tmp/src.scala",
+                            filePath: Maybe[String] =
+                              Maybe.just("/tmp/src.scala"),
                             base: String = "/tmp/")(
       fn: (Array[Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger

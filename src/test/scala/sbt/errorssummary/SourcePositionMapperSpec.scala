@@ -20,7 +20,7 @@ class SourcePositionMapperSpec
     val logger = new RecordingLogger
     val reporter =
       new ConciseReporter(logger, "/tmp/", None, linePlus10, defaultConfig)
-    compile(reporter, code, Seq.empty, "/tmp/src.scala")
+    compile(reporter, code, Seq.empty, Maybe.just("/tmp/src.scala"))
 
     reporter.hasErrors() shouldBe true
     reporter.problems() should have length 1

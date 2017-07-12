@@ -20,7 +20,9 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
    * Compiles the given code, passing the given options to the compiler.
    * Positions will be adapted to be as if the source was in `filePath`.
    */
-  def compile(code: String, options: Array[String], filePath: String): Unit = {
+  def compile(code: String,
+              options: Array[String],
+              filePath: Maybe[String]): Unit = {
     val (wrappedCode, posFn0) = wrap(code)
     val posFn                 = setSourceFile(filePath, posFn0)
     val cpOpt                 = Seq("-cp", sys.props("test.compiler.cp"))
@@ -74,15 +76,16 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
 
   /** Sets the source file to `source` in a position. */
   private def setSourceFile(
-      source: String,
+      source: Maybe[String],
       fn: xsbti.Position => xsbti.Position): xsbti.Position => xsbti.Position =
     orig =>
       new MyPosition(fn(orig)) {
         override def sourceFile(): xsbti.Maybe[java.io.File] =
-          xsbti.Maybe.just(new java.io.File(source))
+          if (source.isDefined) Maybe.just(new java.io.File(source.get))
+          else Maybe.nothing[java.io.File]
 
         override def sourcePath(): xsbti.Maybe[String] =
-          xsbti.Maybe.just(source)
+          source
     }
 
   /**
