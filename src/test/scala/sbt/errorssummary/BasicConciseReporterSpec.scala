@@ -3,7 +3,7 @@ package errorssummary
 
 import scala.compat.Platform.EOL
 import org.scalatest.{FlatSpec, Matchers}
-import xsbti.{Problem, Severity}
+import xsbti.{Maybe, Problem, Severity}
 
 class BasicConciseReporterSpec
     extends FlatSpec
@@ -148,6 +148,23 @@ class BasicConciseReporterSpec
       val (_, msg) = messages.head
       val lines    = msg.split(EOL)
       lines(0) shouldBe expectedText
+    }
+  }
+
+  it should "not include problems with unknown positions in summary" in {
+    // `Manifest[_].erasure` is deprecated since 2.10
+    // We'll just get an un-positioned message about deprecation.
+    val code = """implicitly[Manifest[Int]].erasure"""
+    collectMessagesFor(code, filePath = Maybe.nothing[String]) {
+      (problems, messages) =>
+        problems should have length 1
+        messages should have length 1
+        val (sev, msg) = messages.head
+        sev shouldBe Level.Warn
+
+        // Make sure that we don't print a summary at all
+        // (no errors have a path that is set)
+        msg.split(EOL) should have length 1
     }
   }
 }

@@ -22,10 +22,12 @@ private class ConciseReporter(logger: Logger,
     extends Reporter {
 
   private val _problems = collection.mutable.ArrayBuffer.empty[Problem]
+  private var _nextID   = 1
 
   override def reset(): Unit = {
     parent.foreach(_.reset())
     _problems.clear()
+    _nextID = 1
   }
 
   override def hasErrors(): Boolean =
@@ -48,14 +50,19 @@ private class ConciseReporter(logger: Logger,
     _problems
       .groupBy(_.position.pfile)
       .foreach {
-        case (file, inFile) =>
+        case (None, _) =>
+          ()
+        case (Some(file), inFile) =>
           val sorted =
             inFile
               .sortBy(_.position.pline)
               .map(showProblemLine)
+              .flatten
 
-          val line = s"""$file: ${sorted.mkString(", ")}"""
-          log(line)
+          if (sorted.nonEmpty) {
+            val line = s"""$file: ${sorted.mkString(", ")}"""
+            log(line)
+          }
       }
   }
 
@@ -66,7 +73,8 @@ private class ConciseReporter(logger: Logger,
     parent.foreach(_.log(pos, msg, sev))
 
     val mappedPos = sourcePositionMapper(pos)
-    _problems += Problem(_problems.length + 1, sev, msg, mappedPos)
+    val problemID = if (pos.sourceFile.isDefined) nextID() else -1
+    _problems += Problem(problemID, sev, msg, mappedPos)
   }
 
   override def comment(pos: Position, msg: String): Unit =
@@ -99,9 +107,9 @@ private class ConciseReporter(logger: Logger,
    * @return The absolute path of `file` with `base` stripped if `shortenPaths = true`,
    *         or the original path otherwise.
    */
-  private def showPath(file: File): String = {
-    val absolutePath = Option(file).map(_.getAbsolutePath).getOrElse("unknown")
-    if (config.shortenPaths) absolutePath.stripPrefix(base)
+  private def showPath(file: File): Option[String] = {
+    val absolutePath = Option(file).map(_.getAbsolutePath)
+    if (config.shortenPaths) absolutePath.map(_.stripPrefix(base))
     else absolutePath
   }
 
@@ -126,7 +134,9 @@ private class ConciseReporter(logger: Logger,
    */
   private def prefixed(prefix: String, paragraph: String): String =
     augmentString(paragraph).lines
-      .mkString(colored(config.errorIdColor, prefix), EOL + " " * prefix.length, "")
+      .mkString(colored(config.errorIdColor, prefix),
+                EOL + " " * prefix.length,
+                "")
 
   /**
    * Shows the full error message for `problem`.
@@ -135,21 +145,39 @@ private class ConciseReporter(logger: Logger,
    * @return The full error message.
    */
   private def showText(problem: Problem): String = {
-    val file    = problem.position.pfile
-    val line    = problem.position.pline
-    val offset  = problem.position.poffset
-    val showCol = if (config.columnNumbers) s"${offset + 1}:" else ""
+    val file   = problem.position.pfile
+    val line   = problem.position.pline
+    val offset = problem.position.poffset
+
+    val noString = Option.empty[String]
+    val (position, lineContent, pointer, prefix) =
+      file.fold((noString, noString, noString, "")) { f =>
+        val showLine =
+          line.fold("")(l => s"${colored(colorFor(problem), l.toString)}:")
+        val showCol =
+          if (config.columnNumbers) offset.fold("")(c => s"${c + 1}:") else ""
+        val position =
+          s"""${colored(config.sourcePathColor, f)}:$showLine$showCol"""
+        val lineContent = Some(problem.position.lineContent).filter(_.nonEmpty)
+        val pointer     = problem.position.pointerSpace.map(sp => s"$sp^")
+        val prefix      = s"${extraSpace(problem.severity)}[${problem.id}] "
+        (Some(position), lineContent, pointer, prefix)
+      }
+
     val text =
-      s"""${colored(config.sourcePathColor, file)}:${colored(colorFor(problem),
-                                                 line.toString)}:$showCol
-         |${problem.message}
-         |${problem.position.lineContent}
-         |${problem.position.pointerSpace
-           .map(sp => s"$sp^")
-           .getOrElse("")}""".stripMargin
-    val extraSpace = if (problem.severity == Severity.Warn) " " else ""
-    prefixed(s"$extraSpace[${problem.id}] ", text)
+      List(position, Some(problem.message), lineContent, pointer).flatten
+        .mkString(EOL)
+
+    prefixed(prefix, text)
+
   }
+
+  private def extraSpace(severity: Severity): String =
+    severity match {
+      case Severity.Warn => " "
+      case Severity.Info => " "
+      case _             => ""
+    }
 
   /**
    * Retrieves the right color to use for `problem` based on Severity.
@@ -170,17 +198,23 @@ private class ConciseReporter(logger: Logger,
    * @param problem The problem to show
    * @return A formatted string that shows the line of the problem and its id.
    */
-  private def showProblemLine(problem: Problem): String = {
-    val color = colorFor(problem)
-    colored(color, problem.position.pline.toString) + colored(
-      config.errorIdColor,
-      s" [${problem.id}]")
+  private def showProblemLine(problem: Problem): Option[String] =
+    problem.position.pline.map { line =>
+      val color = colorFor(problem)
+      colored(color, line.toString) + colored(config.errorIdColor,
+                                              s" [${problem.id}]")
+    }
+
+  private def nextID(): Int = {
+    val id = _nextID
+    _nextID += 1
+    id
   }
 
   implicit class MyPosition(position: Position) {
-    def pfile: String = position.sourceFile.map(showPath).getOrElse("unknown")
-    def pline: Int    = position.line.map(_.toInt).getOrElse(0)
-    def poffset: Int  = position.offset.map(_.toInt).getOrElse(0)
+    def pfile: Option[String] = position.sourceFile.flatMap(showPath)
+    def pline: Option[Int]    = position.line.map(_.toInt)
+    def poffset: Option[Int]  = position.offset.map(_.toInt)
   }
 
   private case class Problem(id: Int,
