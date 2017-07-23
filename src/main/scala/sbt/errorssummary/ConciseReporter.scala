@@ -39,8 +39,6 @@ private class ConciseReporter(logger: Logger,
   override def printSummary(): Unit = {
     parent.foreach(_.printSummary())
 
-    _problems.foreach(logFull)
-
     val log: String => Unit =
       (line: String) =>
         if (hasErrors(_problems)) logger.error(line)
@@ -74,7 +72,9 @@ private class ConciseReporter(logger: Logger,
 
     val mappedPos = sourcePositionMapper(pos)
     val problemID = if (pos.sourceFile.isDefined) nextID() else -1
-    _problems += Problem(problemID, sev, msg, mappedPos)
+    val problem   = Problem(problemID, sev, msg, mappedPos)
+    _problems += problem
+    logFull(problem)
   }
 
   override def comment(pos: Position, msg: String): Unit =
