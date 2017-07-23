@@ -39,7 +39,9 @@ private class ConciseReporter(logger: Logger,
   override def printSummary(): Unit = {
     parent.foreach(_.printSummary())
 
-    _problems.foreach(logFull)
+    if (config.reverseOrder) {
+      _problems.reverse.foreach(logFull)
+    }
 
     val log: String => Unit =
       (line: String) =>
@@ -74,7 +76,14 @@ private class ConciseReporter(logger: Logger,
 
     val mappedPos = sourcePositionMapper(pos)
     val problemID = if (pos.sourceFile.isDefined) nextID() else -1
-    _problems += Problem(problemID, sev, msg, mappedPos)
+    val problem   = Problem(problemID, sev, msg, mappedPos)
+    _problems += problem
+
+    // If we show errors in reverse order, they'll all be shown
+    // in `printSummary`.
+    if (!config.reverseOrder) {
+      logFull(problem)
+    }
   }
 
   override def comment(pos: Position, msg: String): Unit =

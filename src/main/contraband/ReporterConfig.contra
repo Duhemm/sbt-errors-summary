@@ -5,6 +5,7 @@ type ReporterConfig {
     colors: Boolean!         = true                          @since("0.0.1")
     shortenPaths: Boolean!   = true                          @since("0.0.1")
     columnNumbers: Boolean!  = false                         @since("0.0.1")
+    reverseOrder: Boolean!   = false                         @since("0.5.0")
     errorColor: String!      = raw"scala.Console.RED"        @since("0.5.0")
     warningColor: String!    = raw"scala.Console.YELLOW"     @since("0.5.0")
     infoColor: String!       = raw"scala.Console.CYAN"       @since("0.5.0")
