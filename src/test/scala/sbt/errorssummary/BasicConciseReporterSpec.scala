@@ -172,12 +172,27 @@ class BasicConciseReporterSpec
       """    error
         |moreError""".stripMargin
     val configWithReversedOrder = defaultConfig.withReverseOrder(true)
-    val expectedText            = "[2] /tmp/src.scala:2:"
+    val expectedText            = "[E2] /tmp/src.scala"
 
     collectMessagesFor(code, configWithReversedOrder) { (problems, messages) =>
       problems should have length 2
 
-      messages should have length 3
+      messages should have length 4
+      val (_, msg) = messages.head
+      val lines    = msg.split(EOL)
+      lines(0) shouldBe expectedText
+    }
+  }
+
+  it should "not show the legend when told not to" in {
+    val code                = "error"
+    val configWithoutLegend = defaultConfig.withShowLegend(false)
+    val expectedText        = "[E1] /tmp/src.scala"
+
+    collectMessagesFor(code, configWithoutLegend) { (problems, messages) =>
+      problems should have length 1
+
+      messages should have length 2
       val (_, msg) = messages.head
       val lines    = msg.split(EOL)
       lines(0) shouldBe expectedText

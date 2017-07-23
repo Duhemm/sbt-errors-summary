@@ -67,7 +67,8 @@ private class ConciseReporter(logger: Logger,
           }
       }
 
-    logger.info("Legend: Ln = line n, Cn = column n, En = error n")
+    if (config.showLegend && problems().nonEmpty)
+      logger.info("Legend: Ln = line n, Cn = column n, En = error n")
   }
 
   override def problems(): Array[xsbti.Problem] =

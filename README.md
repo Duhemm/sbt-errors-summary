@@ -14,22 +14,23 @@ Side by side comparison (this plugin on the left, origin on the right):
 
 ```
 [info] Compiling 2 Scala sources to /Users/martin/Desktop/foo/target/scala-2.12/classes...
-[error] [1] src/main/scala/Bar.scala:2:
-[error]     type mismatch;
-[error]      found   : String("")
-[error]      required: Int
-[error]       val x: Int = ""
-[error]                    ^
-[warn]  [2] src/main/scala/Bar.scala:4:
-[warn]      @deprecated now takes two arguments; see the scaladoc.
-[warn]        @deprecated
-[warn]         ^
-[error] [3] src/main/scala/Foo.scala:2:
-[error]     not found: value foobar
-[error]       def foo: String = foobar
-[error]                         ^
-[error] src/main/scala/Bar.scala: 2 [1], 4 [2]
-[error] src/main/scala/Foo.scala: 2 [3]
+[error] [E1] src/main/scala/Bar.scala
+[error]      type mismatch;
+[error]       found   : String("")
+[error]       required: Int
+[error]      L2:  val x: Int = ""
+[error]      L2:               ^
+[warn]  [E2] src/main/scala/Bar.scala
+[warn]       @deprecated now takes two arguments; see the scaladoc.
+[warn]       L4:  @deprecated
+[warn]       L4:   ^
+[error] [E3] src/main/scala/Foo.scala
+[error]      not found: value foobar
+[error]      L2:  def foo: String = foobar
+[error]      L2:                    ^
+[error] src/main/scala/Bar.scala: L2 [E1], L4 [E2]
+[error] src/main/scala/Foo.scala: L2 [E3]
+[info] Legend: Ln = line n, Cn = column n, En = error n
 [error] (compile:compileIncremental) Compilation failed
 [error] Total time: 0 s, completed Jul 3, 2017 3:00:27 PM
 ```
@@ -98,6 +99,16 @@ The supported configuration options include:
    Example:
    ```scala
    reporterConfig := reporterConfig.value.withReverseOrder(false)
+   ```
+
+ - `showLegend: Boolean = true`:
+   Determines whether to show a legend at the bottom for the various
+   types of numbers (line, column, error). Note that despite this
+   setting, a legend will still only be shown if there actually are
+   errors, and not otherwise.
+   Example:
+   ```scala
+   reporterConfig := reporterConfig.value.withShowLegend(false)
    ```
 
 # Changelog
