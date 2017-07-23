@@ -72,6 +72,9 @@ The supported configuration options include:
    ```scala
    reporterConfig := reporterConfig.value.withColors(false)
    ```
+   All the colors are configurable. See
+   [ReporterConfig.contra](https://github.com/Duhemm/sbt-errors-summary/blob/master/src/main/contraband/ReporterConfig.contra)
+   to see all the existing configuration keys.
 
  - `shortenPaths: Boolean = true`:
    Determines whether the reporter will strip the current working directory from paths
@@ -87,6 +90,14 @@ The supported configuration options include:
    Example:
    ```scala
    reporterConfig := reporterConfig.value.withColumnNumbers(false)
+   ```
+
+ - `reverseOrder: Boolean = false`:
+   Determines whether the reproter will show the error messages in reverse order (first error
+   displayed at the bottom of the screen.) Defaults to `false`.
+   Example:
+   ```scala
+   reporterConfig := reporterConfig.value.withReverseOrder(false)
    ```
 
 # Changelog

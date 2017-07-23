@@ -167,4 +167,21 @@ class BasicConciseReporterSpec
         msg.split(EOL) should have length 1
     }
   }
+
+  it should "reverse problem order when told to" in {
+    val code =
+      """    error
+        |moreError""".stripMargin
+    val configWithReversedOrder = defaultConfig.withReverseOrder(true)
+    val expectedText            = "[2] /tmp/src.scala:2:"
+
+    collectMessagesFor(code, configWithReversedOrder) { (problems, messages) =>
+      problems should have length 2
+
+      messages should have length 3
+      val (_, msg) = messages.head
+      val lines    = msg.split(EOL)
+      lines(0) shouldBe expectedText
+    }
+  }
 }

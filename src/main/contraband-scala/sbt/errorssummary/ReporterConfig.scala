@@ -6,6 +6,7 @@ package sbt.errorssummary
 final class ReporterConfig private (val colors: Boolean,
                                     val shortenPaths: Boolean,
                                     val columnNumbers: Boolean,
+                                    val reverseOrder: Boolean,
                                     val errorColor: String,
                                     val warningColor: String,
                                     val infoColor: String,
@@ -17,6 +18,7 @@ final class ReporterConfig private (val colors: Boolean,
   private def this() =
     this(true,
          true,
+         false,
          false,
          scala.Console.RED,
          scala.Console.YELLOW,
@@ -31,6 +33,7 @@ final class ReporterConfig private (val colors: Boolean,
       colors,
       shortenPaths,
       columnNumbers,
+      false,
       scala.Console.RED,
       scala.Console.YELLOW,
       scala.Console.CYAN,
@@ -41,19 +44,20 @@ final class ReporterConfig private (val colors: Boolean,
 
   override def equals(o: Any): Boolean = o match {
     case x: ReporterConfig =>
-      (this.colors == x.colors) && (this.shortenPaths == x.shortenPaths) && (this.columnNumbers == x.columnNumbers) && (this.errorColor == x.errorColor) && (this.warningColor == x.warningColor) && (this.infoColor == x.infoColor) && (this.debugColor == x.debugColor) && (this.sourcePathColor == x.sourcePathColor) && (this.errorIdColor == x.errorIdColor)
+      (this.colors == x.colors) && (this.shortenPaths == x.shortenPaths) && (this.columnNumbers == x.columnNumbers) && (this.reverseOrder == x.reverseOrder) && (this.errorColor == x.errorColor) && (this.warningColor == x.warningColor) && (this.infoColor == x.infoColor) && (this.debugColor == x.debugColor) && (this.sourcePathColor == x.sourcePathColor) && (this.errorIdColor == x.errorIdColor)
     case _ => false
   }
   override def hashCode: Int = {
-    37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (17 + "ReporterConfig".##) + colors.##) + shortenPaths.##) + columnNumbers.##) + errorColor.##) + warningColor.##) + infoColor.##) + debugColor.##) + sourcePathColor.##) + errorIdColor.##)
+    37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (17 + "ReporterConfig".##) + colors.##) + shortenPaths.##) + columnNumbers.##) + reverseOrder.##) + errorColor.##) + warningColor.##) + infoColor.##) + debugColor.##) + sourcePathColor.##) + errorIdColor.##)
   }
   override def toString: String = {
-    "ReporterConfig(" + colors + ", " + shortenPaths + ", " + columnNumbers + ", " + errorColor + ", " + warningColor + ", " + infoColor + ", " + debugColor + ", " + sourcePathColor + ", " + errorIdColor + ")"
+    "ReporterConfig(" + colors + ", " + shortenPaths + ", " + columnNumbers + ", " + reverseOrder + ", " + errorColor + ", " + warningColor + ", " + infoColor + ", " + debugColor + ", " + sourcePathColor + ", " + errorIdColor + ")"
   }
   protected[this] def copy(
       colors: Boolean = colors,
       shortenPaths: Boolean = shortenPaths,
       columnNumbers: Boolean = columnNumbers,
+      reverseOrder: Boolean = reverseOrder,
       errorColor: String = errorColor,
       warningColor: String = warningColor,
       infoColor: String = infoColor,
@@ -63,6 +67,7 @@ final class ReporterConfig private (val colors: Boolean,
     new ReporterConfig(colors,
                        shortenPaths,
                        columnNumbers,
+                       reverseOrder,
                        errorColor,
                        warningColor,
                        infoColor,
@@ -78,6 +83,9 @@ final class ReporterConfig private (val colors: Boolean,
   }
   def withColumnNumbers(columnNumbers: Boolean): ReporterConfig = {
     copy(columnNumbers = columnNumbers)
+  }
+  def withReverseOrder(reverseOrder: Boolean): ReporterConfig = {
+    copy(reverseOrder = reverseOrder)
   }
   def withErrorColor(errorColor: String): ReporterConfig = {
     copy(errorColor = errorColor)
@@ -104,6 +112,7 @@ object ReporterConfig {
     new ReporterConfig(true,
                        true,
                        false,
+                       false,
                        scala.Console.RED,
                        scala.Console.YELLOW,
                        scala.Console.CYAN,
@@ -117,6 +126,7 @@ object ReporterConfig {
       colors,
       shortenPaths,
       columnNumbers,
+      false,
       scala.Console.RED,
       scala.Console.YELLOW,
       scala.Console.CYAN,
@@ -127,6 +137,7 @@ object ReporterConfig {
   def apply(colors: Boolean,
             shortenPaths: Boolean,
             columnNumbers: Boolean,
+            reverseOrder: Boolean,
             errorColor: String,
             warningColor: String,
             infoColor: String,
@@ -136,6 +147,7 @@ object ReporterConfig {
     new ReporterConfig(colors,
                        shortenPaths,
                        columnNumbers,
+                       reverseOrder,
                        errorColor,
                        warningColor,
                        infoColor,
