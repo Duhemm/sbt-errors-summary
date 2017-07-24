@@ -13,7 +13,7 @@ class BasicConciseReporterSpec
   s"A `ConciseReporter` running $scalaVersion" should "collect errors" in collectMessagesFor(
     "foobar") { (problems, messages) =>
     problems should have length 1
-    messages should have length 2
+    messages should have length 3
 
     val problem = problems(0)
 
@@ -28,7 +28,7 @@ class BasicConciseReporterSpec
       |     eventMore""".stripMargin
   } { (problems, messages) =>
     problems should have length 3
-    messages should have length 4
+    messages should have length 5
 
     problems(0).severity shouldBe Severity.Error
     problems(0).position.line.get shouldBe 1
@@ -45,7 +45,7 @@ class BasicConciseReporterSpec
       |     error""".stripMargin
   } { (problems, messages) =>
     problems should have length 1
-    messages should have length 2
+    messages should have length 3
 
     problems(0).severity shouldBe Severity.Error
     problems(0).position.line.get shouldBe 2
@@ -57,7 +57,7 @@ class BasicConciseReporterSpec
       |}""".stripMargin
   } { (problems, messages) =>
     problems should have length 1
-    messages should have length 2
+    messages should have length 3
 
     problems(0).severity shouldBe Severity.Error
     problems(0).position.line.get shouldBe 2
@@ -67,12 +67,12 @@ class BasicConciseReporterSpec
     val code                = """error"""
     val configWithColors    = defaultConfig.withColors(true)
     val configWithoutColors = defaultConfig.withColors(false)
-    val expectedText        = "[1] /tmp/src.scala:1:"
+    val expectedText        = "[E1] /tmp/src.scala"
 
     collectMessagesFor(code, configWithColors) { (problems, messages) =>
       problems should have length 1
 
-      messages should have length 2
+      messages should have length 3
       val (_, msg) = messages.head
       val lines    = msg.split(EOL)
       lines(0).length should be > expectedText.length
@@ -81,7 +81,7 @@ class BasicConciseReporterSpec
     collectMessagesFor(code, configWithoutColors) { (problems, messages) =>
       problems should have length 1
 
-      messages should have length 2
+      messages should have length 3
       val (_, msg) = messages.head
       val lines    = msg.split(EOL)
       lines(0) shouldBe expectedText
@@ -91,60 +91,59 @@ class BasicConciseReporterSpec
   it should "strip prefix if told to" in {
     val code                     = """error"""
     val configWithShortenedPaths = defaultConfig.withShortenPaths(true)
-    val expectedText             = "[1] src.scala:1:"
+    val expectedText             = "[E1] src.scala"
 
-    collectMessagesFor(code, configWithShortenedPaths) {
-      (problems, messages) =>
-        problems should have length 1
+    collectMessagesFor(code, configWithShortenedPaths) { (problems, messages) =>
+      problems should have length 1
 
-        messages should have length 2
-        val (_, msg) = messages.head
-        val lines    = msg.split(EOL)
-        lines(0) shouldBe expectedText
+      messages should have length 3
+      val (_, msg) = messages.head
+      val lines    = msg.split(EOL)
+      lines(0) shouldBe expectedText
     }
   }
 
   it should "not strip prefix if told not to" in {
     val code                        = """error"""
     val configWithoutShortenedPaths = defaultConfig.withShortenPaths(false)
-    val expectedText                = "[1] /tmp/src.scala:1:"
+    val expectedText                = "[E1] /tmp/src.scala"
 
     collectMessagesFor(code, configWithoutShortenedPaths) {
       (problems, messages) =>
         problems should have length 1
 
-        messages should have length 2
+        messages should have length 3
         val (_, msg) = messages.head
         val lines    = msg.split(EOL)
         lines(0) shouldBe expectedText
     }
   }
 
-  it should "not show colum numbers when told not to" in {
+  it should "not show column numbers when told not to" in {
     val code                       = """error"""
     val configWithoutColumnNumbers = defaultConfig.withColumnNumbers(false)
-    val expectedText               = "[1] /tmp/src.scala:1:"
+    val expectedText               = "[E1] /tmp/src.scala"
 
     collectMessagesFor(code, configWithoutColumnNumbers) {
       (problems, messages) =>
         problems should have length 1
 
-        messages should have length 2
+        messages should have length 3
         val (_, msg) = messages.head
         val lines    = msg.split(EOL)
         lines(0) shouldBe expectedText
     }
   }
 
-  it should "show colum numbers when told to" in {
+  it should "show column numbers when told to" in {
     val code                    = """    error""".stripMargin
     val configWithColumnNumbers = defaultConfig.withColumnNumbers(true)
-    val expectedText            = "[1] /tmp/src.scala:1:5:"
+    val expectedText            = "[E1] /tmp/src.scala"
 
     collectMessagesFor(code, configWithColumnNumbers) { (problems, messages) =>
       problems should have length 1
 
-      messages should have length 2
+      messages should have length 3
       val (_, msg) = messages.head
       val lines    = msg.split(EOL)
       lines(0) shouldBe expectedText
@@ -158,7 +157,7 @@ class BasicConciseReporterSpec
     collectMessagesFor(code, filePath = Maybe.nothing[String]) {
       (problems, messages) =>
         problems should have length 1
-        messages should have length 1
+        messages should have length 2
         val (sev, msg) = messages.head
         sev shouldBe Level.Warn
 
@@ -173,12 +172,27 @@ class BasicConciseReporterSpec
       """    error
         |moreError""".stripMargin
     val configWithReversedOrder = defaultConfig.withReverseOrder(true)
-    val expectedText            = "[2] /tmp/src.scala:2:"
+    val expectedText            = "[E2] /tmp/src.scala"
 
     collectMessagesFor(code, configWithReversedOrder) { (problems, messages) =>
       problems should have length 2
 
-      messages should have length 3
+      messages should have length 4
+      val (_, msg) = messages.head
+      val lines    = msg.split(EOL)
+      lines(0) shouldBe expectedText
+    }
+  }
+
+  it should "not show the legend when told not to" in {
+    val code                = "error"
+    val configWithoutLegend = defaultConfig.withShowLegend(false)
+    val expectedText        = "[E1] /tmp/src.scala"
+
+    collectMessagesFor(code, configWithoutLegend) { (problems, messages) =>
+      problems should have length 1
+
+      messages should have length 2
       val (_, msg) = messages.head
       val lines    = msg.split(EOL)
       lines(0) shouldBe expectedText

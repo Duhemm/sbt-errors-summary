@@ -7,6 +7,7 @@ final class ReporterConfig private (val colors: Boolean,
                                     val shortenPaths: Boolean,
                                     val columnNumbers: Boolean,
                                     val reverseOrder: Boolean,
+                                    val showLegend: Boolean,
                                     val errorColor: String,
                                     val warningColor: String,
                                     val infoColor: String,
@@ -20,6 +21,7 @@ final class ReporterConfig private (val colors: Boolean,
          true,
          false,
          false,
+         true,
          scala.Console.RED,
          scala.Console.YELLOW,
          scala.Console.CYAN,
@@ -34,6 +36,7 @@ final class ReporterConfig private (val colors: Boolean,
       shortenPaths,
       columnNumbers,
       false,
+      true,
       scala.Console.RED,
       scala.Console.YELLOW,
       scala.Console.CYAN,
@@ -44,20 +47,21 @@ final class ReporterConfig private (val colors: Boolean,
 
   override def equals(o: Any): Boolean = o match {
     case x: ReporterConfig =>
-      (this.colors == x.colors) && (this.shortenPaths == x.shortenPaths) && (this.columnNumbers == x.columnNumbers) && (this.reverseOrder == x.reverseOrder) && (this.errorColor == x.errorColor) && (this.warningColor == x.warningColor) && (this.infoColor == x.infoColor) && (this.debugColor == x.debugColor) && (this.sourcePathColor == x.sourcePathColor) && (this.errorIdColor == x.errorIdColor)
+      (this.colors == x.colors) && (this.shortenPaths == x.shortenPaths) && (this.columnNumbers == x.columnNumbers) && (this.reverseOrder == x.reverseOrder) && (this.showLegend == x.showLegend) && (this.errorColor == x.errorColor) && (this.warningColor == x.warningColor) && (this.infoColor == x.infoColor) && (this.debugColor == x.debugColor) && (this.sourcePathColor == x.sourcePathColor) && (this.errorIdColor == x.errorIdColor)
     case _ => false
   }
   override def hashCode: Int = {
-    37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (17 + "ReporterConfig".##) + colors.##) + shortenPaths.##) + columnNumbers.##) + reverseOrder.##) + errorColor.##) + warningColor.##) + infoColor.##) + debugColor.##) + sourcePathColor.##) + errorIdColor.##)
+    37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (37 * (17 + "ReporterConfig".##) + colors.##) + shortenPaths.##) + columnNumbers.##) + reverseOrder.##) + showLegend.##) + errorColor.##) + warningColor.##) + infoColor.##) + debugColor.##) + sourcePathColor.##) + errorIdColor.##)
   }
   override def toString: String = {
-    "ReporterConfig(" + colors + ", " + shortenPaths + ", " + columnNumbers + ", " + reverseOrder + ", " + errorColor + ", " + warningColor + ", " + infoColor + ", " + debugColor + ", " + sourcePathColor + ", " + errorIdColor + ")"
+    "ReporterConfig(" + colors + ", " + shortenPaths + ", " + columnNumbers + ", " + reverseOrder + ", " + showLegend + ", " + errorColor + ", " + warningColor + ", " + infoColor + ", " + debugColor + ", " + sourcePathColor + ", " + errorIdColor + ")"
   }
   protected[this] def copy(
       colors: Boolean = colors,
       shortenPaths: Boolean = shortenPaths,
       columnNumbers: Boolean = columnNumbers,
       reverseOrder: Boolean = reverseOrder,
+      showLegend: Boolean = showLegend,
       errorColor: String = errorColor,
       warningColor: String = warningColor,
       infoColor: String = infoColor,
@@ -68,6 +72,7 @@ final class ReporterConfig private (val colors: Boolean,
                        shortenPaths,
                        columnNumbers,
                        reverseOrder,
+                       showLegend,
                        errorColor,
                        warningColor,
                        infoColor,
@@ -86,6 +91,9 @@ final class ReporterConfig private (val colors: Boolean,
   }
   def withReverseOrder(reverseOrder: Boolean): ReporterConfig = {
     copy(reverseOrder = reverseOrder)
+  }
+  def withShowLegend(showLegend: Boolean): ReporterConfig = {
+    copy(showLegend = showLegend)
   }
   def withErrorColor(errorColor: String): ReporterConfig = {
     copy(errorColor = errorColor)
@@ -113,6 +121,7 @@ object ReporterConfig {
                        true,
                        false,
                        false,
+                       true,
                        scala.Console.RED,
                        scala.Console.YELLOW,
                        scala.Console.CYAN,
@@ -127,6 +136,7 @@ object ReporterConfig {
       shortenPaths,
       columnNumbers,
       false,
+      true,
       scala.Console.RED,
       scala.Console.YELLOW,
       scala.Console.CYAN,
@@ -138,6 +148,7 @@ object ReporterConfig {
             shortenPaths: Boolean,
             columnNumbers: Boolean,
             reverseOrder: Boolean,
+            showLegend: Boolean,
             errorColor: String,
             warningColor: String,
             infoColor: String,
@@ -148,6 +159,7 @@ object ReporterConfig {
                        shortenPaths,
                        columnNumbers,
                        reverseOrder,
+                       showLegend,
                        errorColor,
                        warningColor,
                        infoColor,

@@ -66,6 +66,9 @@ private class ConciseReporter(logger: Logger,
             log(line)
           }
       }
+
+    if (config.showLegend && problems().nonEmpty)
+      logger.info("Legend: Ln = line n, Cn = column n, En = error n")
   }
 
   override def problems(): Array[xsbti.Problem] =
@@ -161,15 +164,31 @@ private class ConciseReporter(logger: Logger,
     val noString = Option.empty[String]
     val (position, lineContent, pointer, prefix) =
       file.fold((noString, noString, noString, "")) { f =>
-        val showLine =
-          line.fold("")(l => s"${colored(colorFor(problem), l.toString)}:")
-        val showCol =
-          if (config.columnNumbers) offset.fold("")(c => s"${c + 1}:") else ""
-        val position =
-          s"""${colored(config.sourcePathColor, f)}:$showLine$showCol"""
-        val lineContent = Some(problem.position.lineContent).filter(_.nonEmpty)
-        val pointer     = problem.position.pointerSpace.map(sp => s"$sp^")
-        val prefix      = s"${extraSpace(problem.severity)}[${problem.id}] "
+        val lineCol = {
+          val lineText = line.fold("") { l =>
+            colored(colorFor(problem), s"L$l:")
+          }
+
+          val colText =
+            offset.filter(_ => config.columnNumbers).fold("") { c =>
+              s"C${c + 1}:"
+            }
+
+          s"$lineText$colText"
+        }
+
+        val position = colored(config.sourcePathColor, f)
+        val lineContent =
+          Option(problem.position.lineContent)
+            .filter(_.nonEmpty)
+            .map(prefixed(lineCol, _))
+
+        val pointer = problem.position.pointerSpace.map { sp =>
+          prefixed(lineCol, s"$sp^")
+        }
+
+        val prefix = s"${extraSpace(problem.severity)}[E${problem.id}] "
+
         (Some(position), lineContent, pointer, prefix)
       }
 
@@ -178,7 +197,6 @@ private class ConciseReporter(logger: Logger,
         .mkString(EOL)
 
     prefixed(prefix, text)
-
   }
 
   private def extraSpace(severity: Severity): String =
@@ -210,8 +228,9 @@ private class ConciseReporter(logger: Logger,
   private def showProblemLine(problem: Problem): Option[String] =
     problem.position.pline.map { line =>
       val color = colorFor(problem)
-      colored(color, line.toString) + colored(config.errorIdColor,
-                                              s" [${problem.id}]")
+
+      colored(color, "L" + line) +
+        colored(config.errorIdColor, s" [E${problem.id}]")
     }
 
   private def nextID(): Int = {
