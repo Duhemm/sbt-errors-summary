@@ -41,7 +41,7 @@ To enable this plugin globally, simply put the following in
 `~/.sbt/0.13/plugins/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.4.1")
+addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.5.0")
 ```
 
 You can also enable it for a specific project by putting the same line in
