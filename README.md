@@ -113,6 +113,19 @@ The supported configuration options include:
 
 # Changelog
 
+## 0.5.0
+ - Add `reporterConfig` key to configure the reporter. See examples in previous section.
+ - Add configurable colors in [#21](https://github.com/Duhemm/sbt-errors-summary/pull/21)
+ - Hide unknown positions in some errors in
+     [#24](https://github.com/Duhemm/sbt-errors-summary/pull/24)
+ - Option to reverse order of error messages (first error shown last) in
+     [#28](https://github.com/Duhemm/sbt-errors-summary/pull/28)
+ - Improve readability and show faulty line number on the left in
+     [#27](https://github.com/Duhemm/sbt-errors-summary/pull/27) by
+     [@yawaramin](https://github.com/yawaramin)
+ - Add option to show legend in [#27](https://github.com/Duhemm/sbt-errors-summary/pull/27)
+     by [@yawaramin](https://github.com/yawaramin)
+
 ### 0.4.1
  - Re-fix display of relative path in [#20](https://github.com/Duhemm/sbt-errors-summary/pull/20)
 
