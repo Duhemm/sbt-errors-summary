@@ -24,18 +24,21 @@ addCommandAlias(
       "project /").mkString(";", ";", ""))
 
 val sharedSettings = Seq(
-  version := "0.6.0-SNAPSHOT",
+  version := "0.6.0",
   organization := "org.duhemm",
   scalaVersion := scala212,
   scalacOptions ++=
     Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
 )
 
+bintrayReleaseOnPublish := false
+
 lazy val errorsSummary =
   project
     .in(file("."))
     .settings(
       sharedSettings,
+      name := "sbt-errors-summary",
       description := "sbt plugin to show a summary of compilation messages.",
       sbtPlugin := true,
       licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
