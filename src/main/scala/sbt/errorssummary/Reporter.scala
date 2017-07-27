@@ -54,7 +54,7 @@ private final class Reporter(val logger: Logger,
     val mappedPos = sourcePositionMapper(prob.position)
     val problemID = if (prob.position.sourceFile.isPresent) nextID() else -1
     val problem =
-      Problem(problemID, prob.severity, prob.message, mappedPos, "")
+      Problem(problemID, prob.severity, prob.message, mappedPos, prob.category)
     _problems += problem
 
     // If we show errors in reverse order, they'll all be shown

@@ -3,10 +3,18 @@
  */
 // DO NOT EDIT MANUALLY
 package sbt.errorssummary
-final class Problem private (val id: Int,
+
+/** Describes a problem (error, warning, message, etc.) given to the reporter. */
+final class Problem private (
+                             /** A unique (per compilation run) number for this message. */
+                             val id: Int,
+                             /** The severity of this message. */
                              val severity: xsbti.Severity,
+                             /** The actual content of the message */
                              val message: String,
+                             /** Position in the source code where the message was triggered */
                              val position: xsbti.Position,
+                             /** The category of this problem. */
                              val category: String)
     extends xsbti.Problem
     with Serializable {
