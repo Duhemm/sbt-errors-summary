@@ -1,7 +1,7 @@
 package sbt.errorssummary
 
 import org.scalatest.{FlatSpec, Matchers}
-import xsbti.{Position, Problem, Severity}
+import xsbti.{Position, Severity}
 import scala.collection.mutable.Buffer
 
 import java.util.Optional
@@ -98,21 +98,21 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
   }
 
   private class BasicReporter extends xsbti.Reporter {
-    val msgs: Buffer[Problem] = Buffer.empty
+    val msgs: Buffer[xsbti.Problem] = Buffer.empty
 
     def comment(pos: Position, msg: String): Unit = ()
     def hasErrors(): Boolean                      = msgs.exists(_.severity == Severity.Error)
     def hasWarnings(): Boolean                    = msgs.exists(_.severity == Severity.Warn)
-    def log(problem: Problem): Unit =
+    def log(problem: xsbti.Problem): Unit =
       msgs += problem
     def printSummary(): Unit = msgs.foreach(println)
-    def problems(): Array[Problem] =
+    def problems(): Array[xsbti.Problem] =
       msgs.toArray
     def reset(): Unit = msgs.clear()
     private case class BasicProblem(severity: Severity,
                                     position: Position,
                                     message: String)
-        extends Problem {
+        extends xsbti.Problem {
       def category(): String = ""
     }
   }

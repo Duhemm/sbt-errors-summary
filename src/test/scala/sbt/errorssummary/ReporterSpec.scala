@@ -1,12 +1,10 @@
 package sbt.errorssummary
 
-import xsbti.Problem
-
 import java.util.Optional
 
 import sbt.util.Level
 
-trait ConciseReporterSpec { self: CompilerSpec =>
+trait ReporterSpec { self: CompilerSpec =>
 
   val defaultConfig: ReporterConfig =
     ReporterConfig(colors = false, shortenPaths = false, columnNumbers = false)
@@ -16,9 +14,9 @@ trait ConciseReporterSpec { self: CompilerSpec =>
                             filePath: Optional[String] =
                               Optional.of("/tmp/src.scala"),
                             base: String = "/tmp/")(
-      fn: (Array[Problem], Seq[(Level.Value, String)]) => T): T = {
+      fn: (Array[xsbti.Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger
-    val reporter = new ConciseReporter(logger, base, identity, config)
+    val reporter = new Reporter(logger, base, identity, config)
     compile(reporter, code, Seq.empty, filePath)
     reporter.printSummary()
     fn(reporter.problems, logger.getAll())
