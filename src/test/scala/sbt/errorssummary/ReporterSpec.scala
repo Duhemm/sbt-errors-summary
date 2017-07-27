@@ -1,11 +1,11 @@
 package sbt
 package errorssummary
 
-import xsbti.{Maybe, Problem}
+import xsbti.Maybe
 
-trait ConciseReporterSpec { self: CompilerSpec =>
+trait ReporterSpec { self: CompilerSpec =>
 
-  val defaultConfig: ReporterConfig =
+  def defaultConfig: ReporterConfig =
     ReporterConfig(colors = false, shortenPaths = false, columnNumbers = false)
 
   def collectMessagesFor[T](code: String,
@@ -13,9 +13,9 @@ trait ConciseReporterSpec { self: CompilerSpec =>
                             filePath: Maybe[String] =
                               Maybe.just("/tmp/src.scala"),
                             base: String = "/tmp/")(
-      fn: (Array[Problem], Seq[(Level.Value, String)]) => T): T = {
+      fn: (Array[xsbti.Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger
-    val reporter = new ConciseReporter(logger, base, None, identity, config)
+    val reporter = new Reporter(logger, base, None, identity, config)
     compile(reporter, code, Seq.empty, filePath)
     reporter.printSummary()
     fn(reporter.problems, logger.getAll())

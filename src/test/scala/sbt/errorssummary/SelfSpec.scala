@@ -2,7 +2,7 @@ package sbt
 package errorssummary
 
 import org.scalatest.{FlatSpec, Matchers}
-import xsbti.{Maybe, Position, Problem, Severity}
+import xsbti.{Maybe, Position, Severity}
 import scala.collection.mutable.Buffer
 
 class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
@@ -105,13 +105,13 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
     def log(pos: Position, msg: String, severity: Severity): Unit =
       msgs += ((severity, pos, msg))
     def printSummary(): Unit = msgs.foreach(println)
-    def problems(): Array[Problem] =
+    def problems(): Array[xsbti.Problem] =
       msgs.map { case (s, p, m) => BasicProblem(s, p, m) }.toArray
     def reset(): Unit = msgs.clear()
     private case class BasicProblem(severity: Severity,
                                     position: Position,
                                     message: String)
-        extends Problem {
+        extends xsbti.Problem {
       def category(): String = ""
     }
   }
