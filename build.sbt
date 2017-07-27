@@ -14,7 +14,7 @@ lazy val errorsSummary =
   project
     .in(file("."))
     .settings(
-      version := "0.6.0",
+      version := "0.7.0-SNAPSHOT",
       sbtPlugin := true,
       organization := "org.duhemm",
       name := "sbt-errors-summary",
