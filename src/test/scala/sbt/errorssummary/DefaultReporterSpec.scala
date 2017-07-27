@@ -5,7 +5,7 @@ import scala.compat.Platform.EOL
 import org.scalatest.{FlatSpec, Matchers}
 import xsbti.{Maybe, Severity}
 
-class BasicReporterSpec
+class DefaultReporterSpec
     extends FlatSpec
     with Matchers
     with CompilerSpec

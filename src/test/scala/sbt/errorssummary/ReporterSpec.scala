@@ -5,7 +5,7 @@ import xsbti.Maybe
 
 trait ReporterSpec { self: CompilerSpec =>
 
-  val defaultConfig: ReporterConfig =
+  def defaultConfig: ReporterConfig =
     ReporterConfig(colors = false, shortenPaths = false, columnNumbers = false)
 
   def collectMessagesFor[T](code: String,
