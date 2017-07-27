@@ -3,14 +3,14 @@ package errorssummary
 
 import scala.compat.Platform.EOL
 import org.scalatest.{FlatSpec, Matchers}
-import xsbti.{Maybe, Problem, Severity}
+import xsbti.{Maybe, Severity}
 
-class BasicConciseReporterSpec
+class BasicReporterSpec
     extends FlatSpec
     with Matchers
     with CompilerSpec
-    with ConciseReporterSpec {
-  s"A `ConciseReporter` running $scalaVersion" should "collect errors" in collectMessagesFor(
+    with ReporterSpec {
+  s"A `Reporter` running $scalaVersion" should "collect errors" in collectMessagesFor(
     "foobar") { (problems, messages) =>
     problems should have length 1
     messages should have length 3
@@ -93,13 +93,14 @@ class BasicConciseReporterSpec
     val configWithShortenedPaths = defaultConfig.withShortenPaths(true)
     val expectedText             = "[E1] src.scala"
 
-    collectMessagesFor(code, configWithShortenedPaths) { (problems, messages) =>
-      problems should have length 1
+    collectMessagesFor(code, configWithShortenedPaths) {
+      (problems, messages) =>
+        problems should have length 1
 
-      messages should have length 3
-      val (_, msg) = messages.head
-      val lines    = msg.split(EOL)
-      lines(0) shouldBe expectedText
+        messages should have length 3
+        val (_, msg) = messages.head
+        val lines    = msg.split(EOL)
+        lines(0) shouldBe expectedText
     }
   }
 

@@ -8,7 +8,7 @@ class SourcePositionMapperSpec
     extends FlatSpec
     with Matchers
     with CompilerSpec
-    with ConciseReporterSpec {
+    with ReporterSpec {
   "Source position mappers" should "be applied to messages received by the reporter" in {
     val code = """error"""
     val linePlus10: Position => Position = orig =>
@@ -19,7 +19,7 @@ class SourcePositionMapperSpec
     }
     val logger = new RecordingLogger
     val reporter =
-      new ConciseReporter(logger, "/tmp/", None, linePlus10, defaultConfig)
+      new Reporter(logger, "/tmp/", None, linePlus10, defaultConfig)
     compile(reporter, code, Seq.empty, Maybe.just("/tmp/src.scala"))
 
     reporter.hasErrors() shouldBe true

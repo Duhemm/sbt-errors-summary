@@ -1,0 +1,13 @@
+package sbt.errorssummary
+@target(Scala)
+
+type Problem {
+
+  id: Int!
+  severity: xsbti.Severity!
+  message: String!
+  position: xsbti.Position!
+  category: String!
+
+  #xinterface xsbti.Problem
+}
