@@ -1,9 +1,12 @@
-package sbt
-package errorssummary
+package sbt.errorssummary
 
-import xsbti.{Maybe, Position, Reporter, Severity}
+import sbt.Logger
+import sbt.util.InterfaceUtil.toOption
+import xsbti.{Position, Reporter, Severity}
 
 import java.io.File
+import java.util.Optional
+
 import scala.Console.RESET
 import scala.compat.Platform.EOL
 
@@ -12,11 +15,9 @@ import scala.compat.Platform.EOL
  *
  * @param logger The logger that will receive the output of the reporter.
  * @param base   The base prefix to remove from paths.
- * @param parent Another reporter that should also receive the messages.
  */
 private class ConciseReporter(logger: Logger,
                               base: String,
-                              parent: Option[Reporter],
                               sourcePositionMapper: Position => Position,
                               config: ReporterConfig)
     extends Reporter {
@@ -25,7 +26,6 @@ private class ConciseReporter(logger: Logger,
   private var _nextID   = 1
 
   override def reset(): Unit = {
-    parent.foreach(_.reset())
     _problems.clear()
     _nextID = 1
   }
@@ -37,8 +37,6 @@ private class ConciseReporter(logger: Logger,
     hasWarnings(_problems)
 
   override def printSummary(): Unit = {
-    parent.foreach(_.printSummary())
-
     if (config.reverseOrder) {
       _problems.reverse.foreach(logFull)
     }
@@ -74,12 +72,10 @@ private class ConciseReporter(logger: Logger,
   override def problems(): Array[xsbti.Problem] =
     _problems.toArray
 
-  override def log(pos: Position, msg: String, sev: Severity): Unit = {
-    parent.foreach(_.log(pos, msg, sev))
-
-    val mappedPos = sourcePositionMapper(pos)
-    val problemID = if (pos.sourceFile.isDefined) nextID() else -1
-    val problem   = Problem(problemID, sev, msg, mappedPos)
+  override def log(prob: xsbti.Problem): Unit = {
+    val mappedPos = sourcePositionMapper(prob.position)
+    val problemID = if (prob.position.sourceFile.isPresent) nextID() else -1
+    val problem   = Problem(problemID, prob.severity, prob.message, mappedPos)
     _problems += problem
 
     // If we show errors in reverse order, they'll all be shown
@@ -89,8 +85,7 @@ private class ConciseReporter(logger: Logger,
     }
   }
 
-  override def comment(pos: Position, msg: String): Unit =
-    parent.foreach(_.comment(pos, msg))
+  override def comment(pos: Position, msg: String): Unit = ()
 
   /**
    * Log the full error message for `problem`.
@@ -119,8 +114,9 @@ private class ConciseReporter(logger: Logger,
    * @return The absolute path of `file` with `base` stripped if `shortenPaths = true`,
    *         or the original path otherwise.
    */
-  private def showPath(file: File): Option[String] = {
-    val absolutePath = Option(file).map(_.getAbsolutePath)
+  private def showPath(file: File): Optional[String] = {
+    val absolutePath: Optional[String] =
+      Optional.ofNullable(file).map(_.getAbsolutePath)
     if (config.shortenPaths) absolutePath.map(_.stripPrefix(base))
     else absolutePath
   }
@@ -183,13 +179,14 @@ private class ConciseReporter(logger: Logger,
             .filter(_.nonEmpty)
             .map(prefixed(lineCol, _))
 
-        val pointer = problem.position.pointerSpace.map { sp =>
-          prefixed(lineCol, s"$sp^")
+        val pointer: Optional[String] = problem.position.pointerSpace.map {
+          sp =>
+            prefixed(lineCol, s"$sp^")
         }
 
         val prefix = s"${extraSpace(problem.severity)}[E${problem.id}] "
 
-        (Some(position), lineContent, pointer, prefix)
+        (Some(position), lineContent, toOption(pointer), prefix)
       }
 
     val text =
@@ -240,9 +237,9 @@ private class ConciseReporter(logger: Logger,
   }
 
   implicit class MyPosition(position: Position) {
-    def pfile: Option[String] = position.sourceFile.flatMap(showPath)
-    def pline: Option[Int]    = position.line.map(_.toInt)
-    def poffset: Option[Int]  = position.offset.map(_.toInt)
+    def pfile: Option[String]    = toOption(position.sourceFile.flatMap(showPath))
+    def pline: Option[Integer]   = toOption(position.line)
+    def poffset: Option[Integer] = toOption(position.offset)
   }
 
   private case class Problem(id: Int,
@@ -253,22 +250,21 @@ private class ConciseReporter(logger: Logger,
     override val category: String = ""
 
     override val position: Position = new Position {
-      def offset: Maybe[Integer] =
+      def offset: Optional[Integer] =
         pointerSpace
-          .map(s => Maybe.just(s.length: Integer))
-          .getOrElse(Maybe.nothing[Integer])
+          .map(_.length)
 
-      def line(): Maybe[Integer] = rawPosition.line()
+      def line(): Optional[Integer] = rawPosition.line()
 
       def lineContent(): String = rawPosition.lineContent()
 
-      def pointer(): Maybe[Integer] = rawPosition.pointer()
+      def pointer(): Optional[Integer] = rawPosition.pointer()
 
-      def pointerSpace(): Maybe[String] = rawPosition.pointerSpace()
+      def pointerSpace(): Optional[String] = rawPosition.pointerSpace()
 
-      def sourceFile(): Maybe[File] = rawPosition.sourceFile()
+      def sourceFile(): Optional[File] = rawPosition.sourceFile()
 
-      def sourcePath(): Maybe[String] = rawPosition.sourcePath()
+      def sourcePath(): Optional[String] = rawPosition.sourcePath()
     }
   }
 

@@ -1,7 +1,10 @@
-package sbt
-package errorssummary
+package sbt.errorssummary
 
-import xsbti.{Maybe, Problem}
+import xsbti.Problem
+
+import java.util.Optional
+
+import sbt.util.Level
 
 trait ConciseReporterSpec { self: CompilerSpec =>
 
@@ -10,12 +13,12 @@ trait ConciseReporterSpec { self: CompilerSpec =>
 
   def collectMessagesFor[T](code: String,
                             config: ReporterConfig = defaultConfig,
-                            filePath: Maybe[String] =
-                              Maybe.just("/tmp/src.scala"),
+                            filePath: Optional[String] =
+                              Optional.of("/tmp/src.scala"),
                             base: String = "/tmp/")(
       fn: (Array[Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger
-    val reporter = new ConciseReporter(logger, base, None, identity, config)
+    val reporter = new ConciseReporter(logger, base, identity, config)
     compile(reporter, code, Seq.empty, filePath)
     reporter.printSummary()
     fn(reporter.problems, logger.getAll())

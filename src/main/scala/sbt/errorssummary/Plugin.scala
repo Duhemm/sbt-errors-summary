@@ -7,13 +7,11 @@ import sbt.Keys.{
   compilerReporter,
   maxErrors,
   printWarnings,
-  sourceDirectory,
   sourcePositionMappers,
   streams
 }
 import xsbti.Severity
 
-import scala.Console._
 import java.io.File
 
 object Plugin extends AutoPlugin {
@@ -38,31 +36,32 @@ object Plugin extends AutoPlugin {
     compilerReporter in compile := {
       val logger  = streams.value.log
       val baseDir = sys.props("user.dir") + File.separator
-      val parent  = (compilerReporter in compile).value
-      val spms    = Compiler.foldMappers(sourcePositionMappers.value)
+      val spms    = Defaults.foldMappers(sourcePositionMappers.value)
       val config  = (reporterConfig in compile).value
 
       val reporter =
-        new ConciseReporter(logger, baseDir, parent, spms, config)
-      Some(reporter)
+        new ConciseReporter(logger, baseDir, spms, config)
+      reporter
     },
     printWarnings := {
-      val maybeReporter = (compilerReporter in compile).value
-      val analysis      = compile.value
+      val reporter = (compilerReporter in compile).value
+      val analysis = compile.value match {
+        case a: sbt.internal.inc.Analysis => a
+      }
       val problems = analysis.infos.allInfos.values.flatMap(i =>
-        i.reportedProblems ++ i.unreportedProblems)
+        i.getReportedProblems ++ i.getUnreportedProblems)
       val maximumErrors = maxErrors.value
       var errorCount    = 0
+
       for {
-        reporter <- maybeReporter;
-        p        <- problems
+        p <- problems
         if p.severity != Severity.Error || errorCount < maximumErrors
       } {
         if (p.severity == Severity.Error) errorCount += 1
-        reporter.log(p.position, p.message, p.severity)
+        reporter.log(p)
       }
 
-      maybeReporter.foreach(_.printSummary())
+      reporter.printSummary()
     }
   )
 }

@@ -1,7 +1,7 @@
 package xsbt
 
 import scala.tools.nsc.Settings
-import xsbti.{Position, Reporter, Severity}
+import xsbti.{Position, Problem, Reporter, Severity}
 
 object WrappedReporter {
   def apply(settings: Settings,
@@ -25,8 +25,15 @@ private class TransformedPositionsReporter(reporter: Reporter,
   def hasWarnings(): Boolean =
     reporter.hasWarnings()
 
-  def log(pos: Position, msg: String, severity: Severity): Unit =
-    reporter.log(posTransform(pos), msg, severity)
+  def log(problem: Problem): Unit = {
+    val newProblem = new Problem {
+      override def category(): String   = problem.category()
+      override def message(): String    = problem.message()
+      override def position(): Position = posTransform(problem.position())
+      override def severity(): Severity = problem.severity()
+    }
+    reporter.log(newProblem)
+  }
 
   def printSummary(): Unit =
     reporter.printSummary()

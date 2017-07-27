@@ -1,6 +1,8 @@
 package cross
 
-import xsbti.{Maybe, Reporter}
+import xsbti.Reporter
+
+import java.util.Optional
 
 import scala.reflect.internal.util.{BatchSourceFile, NoFile}
 import scala.reflect.internal.util.Position
@@ -22,11 +24,11 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
    */
   def compile(code: String,
               options: Array[String],
-              filePath: Maybe[String]): Unit = {
+              filePath: Optional[String]): Unit = {
     val (wrappedCode, posFn0) = wrap(code)
     val posFn                 = setSourceFile(filePath, posFn0)
     val cpOpt                 = Seq("-cp", sys.props("test.compiler.cp"))
-    val global                = getCompiler(posFn, options = cpOpt ++ options: _*)
+    val global = getCompiler(posFn, options = cpOpt ++ options: _*)
 
     import global._
     val source = new BatchSourceFile(NoFile, wrappedCode)
@@ -76,15 +78,14 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
 
   /** Sets the source file to `source` in a position. */
   private def setSourceFile(
-      source: Maybe[String],
+      source: Optional[String],
       fn: xsbti.Position => xsbti.Position): xsbti.Position => xsbti.Position =
     orig =>
       new MyPosition(fn(orig)) {
-        override def sourceFile(): xsbti.Maybe[java.io.File] =
-          if (source.isDefined) Maybe.just(new java.io.File(source.get))
-          else Maybe.nothing[java.io.File]
+        override def sourceFile(): Optional[java.io.File] =
+          source.map(toJavaFunction(src => new java.io.File(src)))
 
-        override def sourcePath(): xsbti.Maybe[String] =
+        override def sourcePath(): Optional[String] =
           source
     }
 
@@ -94,47 +95,48 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
   private def mapPos(lineFn: Int => Int,
                      colFn: Int => Int): xsbti.Position => xsbti.Position =
     new MyPosition(_) {
-      override def line(): xsbti.Maybe[Integer] =
-        orig.line().map(l => lineFn(l.toInt): Integer)
+      override def line(): Optional[Integer] =
+        orig.line().map(toJavaFunction(l => lineFn(l.toInt): Integer))
 
-      override def offset(): xsbti.Maybe[Integer] =
-        orig.offset().map(c => colFn(c.toInt): Integer)
+      override def offset(): Optional[Integer] =
+        orig.offset().map(toJavaFunction(c => colFn(c.toInt): Integer))
 
-      override def pointer(): xsbti.Maybe[Integer] =
-        orig.pointer().map(c => colFn(c.toInt): Integer)
+      override def pointer(): Optional[Integer] =
+        orig.pointer().map(toJavaFunction(c => colFn(c.toInt): Integer))
 
-      override def pointerSpace(): xsbti.Maybe[String] =
-        orig.pointerSpace().map(s => " " * colFn(s.length))
+      override def pointerSpace(): Optional[String] =
+        orig.pointerSpace().map(toJavaFunction(s => " " * colFn(s.length)))
     }
 
   private class MyPosition(protected val orig: xsbti.Position)
       extends xsbti.Position {
-    import scala.language.implicitConversions
-    protected implicit def m2o[T](m: Maybe[T]): Option[T] =
-      if (m.isDefined) Some(m.get) else None
-    protected implicit def o2m[T](o: Option[T]): Maybe[T] =
-      o.map(Maybe.just(_)).getOrElse(Maybe.nothing[T])
 
-    def line(): xsbti.Maybe[Integer] =
+    def line(): Optional[Integer] =
       orig.line()
 
     def lineContent(): String =
       orig.lineContent()
 
-    def offset(): xsbti.Maybe[Integer] =
+    def offset(): Optional[Integer] =
       orig.offset()
 
-    def pointer(): xsbti.Maybe[Integer] =
+    def pointer(): Optional[Integer] =
       orig.pointer()
 
-    def pointerSpace(): xsbti.Maybe[String] =
+    def pointerSpace(): Optional[String] =
       orig.pointerSpace()
 
-    def sourceFile(): xsbti.Maybe[java.io.File] =
+    def sourceFile(): Optional[java.io.File] =
       orig.sourceFile()
 
-    def sourcePath(): xsbti.Maybe[String] =
+    def sourcePath(): Optional[String] =
       orig.sourcePath()
   }
+
+  private def toJavaFunction[A, R](
+      fn: A => R): java.util.function.Function[A, R] =
+    new java.util.function.Function[A, R] {
+      override def apply(a: A): R = fn(a)
+    }
 
 }

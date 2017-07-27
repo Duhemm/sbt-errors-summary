@@ -1,7 +1,9 @@
-package sbt
-package errorssummary
+package sbt.errorssummary
 
-import xsbti.{Maybe, Position}
+import xsbti.Position
+
+import java.io.File
+import java.util.Optional
 
 import org.scalatest.{FlatSpec, Matchers}
 class SourcePositionMapperSpec
@@ -13,14 +15,13 @@ class SourcePositionMapperSpec
     val code = """error"""
     val linePlus10: Position => Position = orig =>
       new MyPosition(orig) {
-        override def line(): Maybe[Integer] =
-          if (orig.line().isDefined) Maybe.just(orig.line.get() + 10)
-          else Maybe.nothing[Integer]
+        override def line(): Optional[Integer] =
+          orig.line.map(_ + 10)
     }
     val logger = new RecordingLogger
     val reporter =
-      new ConciseReporter(logger, "/tmp/", None, linePlus10, defaultConfig)
-    compile(reporter, code, Seq.empty, Maybe.just("/tmp/src.scala"))
+      new ConciseReporter(logger, "/tmp/", linePlus10, defaultConfig)
+    compile(reporter, code, Seq.empty, Optional.of("/tmp/src.scala"))
 
     reporter.hasErrors() shouldBe true
     reporter.problems() should have length 1
@@ -31,11 +32,11 @@ class SourcePositionMapperSpec
 }
 
 private abstract class MyPosition(orig: Position) extends Position {
-  def offset(): Maybe[Integer]      = orig.offset()
-  def line(): Maybe[Integer]        = orig.line()
-  def lineContent(): String         = orig.lineContent()
-  def pointer(): Maybe[Integer]     = orig.pointer()
-  def pointerSpace(): Maybe[String] = orig.pointerSpace()
-  def sourceFile(): Maybe[File]     = orig.sourceFile()
-  def sourcePath(): Maybe[String]   = orig.sourcePath()
+  def offset(): Optional[Integer]      = orig.offset()
+  def line(): Optional[Integer]        = orig.line()
+  def lineContent(): String            = orig.lineContent()
+  def pointer(): Optional[Integer]     = orig.pointer()
+  def pointerSpace(): Optional[String] = orig.pointerSpace()
+  def sourceFile(): Optional[File]     = orig.sourceFile()
+  def sourcePath(): Optional[String]   = orig.sourcePath()
 }

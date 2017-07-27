@@ -1,9 +1,12 @@
-package sbt
-package errorssummary
+package sbt.errorssummary
 
 import scala.compat.Platform.EOL
 import org.scalatest.{FlatSpec, Matchers}
-import xsbti.{Maybe, Problem, Severity}
+import xsbti.{Problem, Severity}
+
+import sbt.util.Level
+
+import java.util.Optional
 
 class BasicConciseReporterSpec
     extends FlatSpec
@@ -93,13 +96,14 @@ class BasicConciseReporterSpec
     val configWithShortenedPaths = defaultConfig.withShortenPaths(true)
     val expectedText             = "[E1] src.scala"
 
-    collectMessagesFor(code, configWithShortenedPaths) { (problems, messages) =>
-      problems should have length 1
+    collectMessagesFor(code, configWithShortenedPaths) {
+      (problems, messages) =>
+        problems should have length 1
 
-      messages should have length 3
-      val (_, msg) = messages.head
-      val lines    = msg.split(EOL)
-      lines(0) shouldBe expectedText
+        messages should have length 3
+        val (_, msg) = messages.head
+        val lines    = msg.split(EOL)
+        lines(0) shouldBe expectedText
     }
   }
 
@@ -154,7 +158,7 @@ class BasicConciseReporterSpec
     // `Manifest[_].erasure` is deprecated since 2.10
     // We'll just get an un-positioned message about deprecation.
     val code = """implicitly[Manifest[Int]].erasure"""
-    collectMessagesFor(code, filePath = Maybe.nothing[String]) {
+    collectMessagesFor(code, filePath = Optional.empty[String]) {
       (problems, messages) =>
         problems should have length 1
         messages should have length 2

@@ -1,9 +1,10 @@
-package sbt
-package errorssummary
+package sbt.errorssummary
 
 import org.scalatest.{FlatSpec, Matchers}
-import xsbti.{Maybe, Position, Problem, Severity}
+import xsbti.{Position, Problem, Severity}
 import scala.collection.mutable.Buffer
+
+import java.util.Optional
 
 class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
   "The test framework" should "compile simple snippets" in {
@@ -41,7 +42,7 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
       reporter.hasErrors() shouldBe false
       reporter.hasWarnings() shouldBe true
       problem.severity shouldBe Severity.Warn
-      problem.position.line.isDefined shouldBe false
+      problem.position.line.isPresent shouldBe false
     } else {
       reporter.hasErrors() shouldBe true
       reporter.hasWarnings() shouldBe false
@@ -86,27 +87,27 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
     val code       = """error"""
     val reporter   = new BasicReporter
     val sourceFile = "/foo/bar/src.scala"
-    compile(reporter, code, Seq.empty, Maybe.just(sourceFile))
+    compile(reporter, code, Seq.empty, Optional.of(sourceFile))
 
     reporter.problems should have length 1
     val problem = reporter.problems()(0)
-    problem.position.sourceFile.isDefined shouldBe true
-    problem.position.sourceFile.get shouldBe file(sourceFile)
-    problem.position.sourcePath.isDefined shouldBe true
+    problem.position.sourceFile.isPresent shouldBe true
+    problem.position.sourceFile.get shouldBe new java.io.File(sourceFile)
+    problem.position.sourcePath.isPresent shouldBe true
     problem.position.sourcePath.get shouldBe sourceFile
   }
 
   private class BasicReporter extends xsbti.Reporter {
-    val msgs: Buffer[(Severity, Position, String)] = Buffer.empty
+    val msgs: Buffer[Problem] = Buffer.empty
 
     def comment(pos: Position, msg: String): Unit = ()
-    def hasErrors(): Boolean                      = msgs.exists(_._1 == Severity.Error)
-    def hasWarnings(): Boolean                    = msgs.exists(_._1 == Severity.Warn)
-    def log(pos: Position, msg: String, severity: Severity): Unit =
-      msgs += ((severity, pos, msg))
+    def hasErrors(): Boolean                      = msgs.exists(_.severity == Severity.Error)
+    def hasWarnings(): Boolean                    = msgs.exists(_.severity == Severity.Warn)
+    def log(problem: Problem): Unit =
+      msgs += problem
     def printSummary(): Unit = msgs.foreach(println)
     def problems(): Array[Problem] =
-      msgs.map { case (s, p, m) => BasicProblem(s, p, m) }.toArray
+      msgs.toArray
     def reset(): Unit = msgs.clear()
     private case class BasicProblem(severity: Severity,
                                     position: Position,

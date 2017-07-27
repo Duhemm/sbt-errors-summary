@@ -1,24 +1,43 @@
-val testVersions = Seq("2.10.6", "2.11.11", "2.12.2")
-val configs = testVersions.map { v =>
-  val configVersion = v.filterNot(_ == '.')
-  v -> config(s"test$configVersion")
-}.toMap
+import sbt.internal.inc.{IfMissing, ZincComponentManager, ZincUtil}
+
+val scala210    = "2.10.6"
+val scala211    = "2.11.11"
+val scala212    = "2.12.2"
+val zincVersion = "1.0.0-X20"
+
+val testVersions = Seq(scala210, scala211, scala212)
+val Test210 = config("Test210")
+val Test211 = config("Test211")
+val Test212 = config("Test212")
+val configs = Map(scala210 -> Test210,
+                  scala211 -> Test211,
+                  scala212 -> Test212)
 
 addCommandAlias(
   "setupTests",
-  Seq("project testCompiler", "+ compile", "project /").mkString(";", ";", ""))
+      // Compile all the required bridges
+  Seq("project setupProject",
+      "+ compile",
+      // Compile the "test compiler" for all scala versions
+      "project testCompiler",
+      "+ compile",
+      "project /").mkString(";", ";", ""))
+
+val sharedSettings = Seq(
+  version := "0.6.0-SNAPSHOT",
+  organization := "org.duhemm",
+  scalaVersion := scala212,
+  scalacOptions ++=
+    Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
+)
 
 lazy val errorsSummary =
   project
     .in(file("."))
     .settings(
-      version := "0.6.0-SNAPSHOT",
-      sbtPlugin := true,
-      organization := "org.duhemm",
-      name := "sbt-errors-summary",
+      sharedSettings,
       description := "sbt plugin to show a summary of compilation messages.",
-      scalacOptions ++=
-        Seq("-deprecation", "-feature", "-unchecked", "-Xlint", "-Ywarn-all"),
+      sbtPlugin := true,
       licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % Test,
       sourceManaged in (Compile, generateContrabands) := baseDirectory.value / "src" / "main" / "contraband-scala"
@@ -31,10 +50,20 @@ lazy val testCompiler =
   project
     .in(file("test-compiler"))
     .settings(
+      sharedSettings,
       crossScalaVersions := testVersions,
-      libraryDependencies += "org.scala-sbt" % "compiler-interface" % sbtVersion.value % Provided,
+      libraryDependencies += "org.scala-sbt" % "compiler-interface" % zincVersion % Provided,
       libraryDependencies ++= compilerDependencies(scalaVersion.value,
-                                                   Provided)
+                                                   Provided),
+      // We need the compiled bridge on the classpath because `DelegatingReporter` moved from
+      // compile-interface to the implementation of the bridge.
+      unmanagedClasspath in Compile += {
+        val ci = getCompilerInterface(appConfiguration.value,
+          ZincUtil.getDefaultBridgeModule(scalaVersion.value),
+          streams.value.log,
+          scalaVersion.value)
+        ci
+      }
     )
     .dependsOn(testAPI)
 
@@ -42,9 +71,19 @@ lazy val testAPI =
   project
     .in(file("test-api"))
     .settings(
-      libraryDependencies += "org.scala-sbt" % "interface" % sbtVersion.value,
+      sharedSettings,
       autoScalaLibrary := false,
       crossPaths := false
+    )
+
+// Project without dependencies whose only goal is to trigged compilation
+// of all the missing bridges.
+lazy val setupProject =
+  project
+    .in(file("setup-project"))
+    .settings(
+      sharedSettings,
+      crossScalaVersions := testVersions
     )
 
 def testSetup(scalaVersion: String): Seq[Setting[_]] = {
@@ -62,7 +101,7 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
       },
       fullClasspath in testConfig := {
         val ci = getCompilerInterface(appConfiguration.value,
-                                      scalaCompilerBridgeSource.value,
+                                      ZincUtil.getDefaultBridgeModule(scalaVersion),
                                       streams.value.log,
                                       scalaVersion)
         val compiler  = (target in testCompiler).value / s"scala-$shortVersion" / "classes"
@@ -82,11 +121,11 @@ def getCompilerInterface(app: xsbti.AppConfiguration,
                          log: Logger,
                          scalaVersion: String): File = {
   val launcher = app.provider.scalaProvider.launcher
-  val componentManager = new ComponentManager(launcher.globalLock,
+  val componentManager = new ZincComponentManager(launcher.globalLock,
                                               app.provider.components,
                                               Option(launcher.ivyHome),
                                               log)
-  val binSeparator = sbt.compiler.ComponentCompiler.binSeparator
+  val binSeparator = "-bin_" // Keep in sync with `ZincComponentCompiler.binSeparator`
   val javaVersion  = sys.props("java.class.version")
   val id =
     s"${sourcesModule.organization}-${sourcesModule.name}-${sourcesModule.revision}${binSeparator}${scalaVersion}__${javaVersion}"
