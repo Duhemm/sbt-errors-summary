@@ -40,7 +40,7 @@ object Plugin extends AutoPlugin {
       val config  = (reporterConfig in compile).value
 
       val reporter =
-        new ConciseReporter(logger, baseDir, spms, config)
+        new Reporter(logger, baseDir, spms, config)
       reporter
     },
     printWarnings := {

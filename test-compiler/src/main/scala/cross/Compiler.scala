@@ -28,7 +28,7 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
     val (wrappedCode, posFn0) = wrap(code)
     val posFn                 = setSourceFile(filePath, posFn0)
     val cpOpt                 = Seq("-cp", sys.props("test.compiler.cp"))
-    val global = getCompiler(posFn, options = cpOpt ++ options: _*)
+    val global                = getCompiler(posFn, options = cpOpt ++ options: _*)
 
     import global._
     val source = new BatchSourceFile(NoFile, wrappedCode)

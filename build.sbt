@@ -6,22 +6,22 @@ val scala212    = "2.12.2"
 val zincVersion = "1.0.0-X20"
 
 val testVersions = Seq(scala210, scala211, scala212)
-val Test210 = config("Test210")
-val Test211 = config("Test211")
-val Test212 = config("Test212")
-val configs = Map(scala210 -> Test210,
-                  scala211 -> Test211,
-                  scala212 -> Test212)
+val Test210      = config("Test210")
+val Test211      = config("Test211")
+val Test212      = config("Test212")
+val configs =
+  Map(scala210 -> Test210, scala211 -> Test211, scala212 -> Test212)
 
 addCommandAlias(
   "setupTests",
-      // Compile all the required bridges
+  // Compile all the required bridges
   Seq("project setupProject",
       "+ compile",
       // Compile the "test compiler" for all scala versions
       "project testCompiler",
       "+ compile",
-      "project /").mkString(";", ";", ""))
+      "project /").mkString(";", ";", "")
+)
 
 val sharedSettings = Seq(
   version := "0.7.0-SNAPSHOT",
@@ -61,7 +61,8 @@ lazy val testCompiler =
       // We need the compiled bridge on the classpath because `DelegatingReporter` moved from
       // compile-interface to the implementation of the bridge.
       unmanagedClasspath in Compile += {
-        val ci = getCompilerInterface(appConfiguration.value,
+        val ci = getCompilerInterface(
+          appConfiguration.value,
           ZincUtil.getDefaultBridgeModule(scalaVersion.value),
           streams.value.log,
           scalaVersion.value)
@@ -103,10 +104,11 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
         (testOnly in Test).dependsOn(fullClasspath in testConfig).evaluated
       },
       fullClasspath in testConfig := {
-        val ci = getCompilerInterface(appConfiguration.value,
-                                      ZincUtil.getDefaultBridgeModule(scalaVersion),
-                                      streams.value.log,
-                                      scalaVersion)
+        val ci =
+          getCompilerInterface(appConfiguration.value,
+                               ZincUtil.getDefaultBridgeModule(scalaVersion),
+                               streams.value.log,
+                               scalaVersion)
         val compiler  = (target in testCompiler).value / s"scala-$shortVersion" / "classes"
         val classpath = (externalDependencyClasspath in testConfig).value
         val testcp = (classpath.files :+ compiler :+ ci)
@@ -125,9 +127,9 @@ def getCompilerInterface(app: xsbti.AppConfiguration,
                          scalaVersion: String): File = {
   val launcher = app.provider.scalaProvider.launcher
   val componentManager = new ZincComponentManager(launcher.globalLock,
-                                              app.provider.components,
-                                              Option(launcher.ivyHome),
-                                              log)
+                                                  app.provider.components,
+                                                  Option(launcher.ivyHome),
+                                                  log)
   val binSeparator = "-bin_" // Keep in sync with `ZincComponentCompiler.binSeparator`
   val javaVersion  = sys.props("java.class.version")
   val id =

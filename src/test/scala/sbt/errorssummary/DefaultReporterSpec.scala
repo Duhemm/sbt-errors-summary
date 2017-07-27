@@ -2,18 +2,18 @@ package sbt.errorssummary
 
 import scala.compat.Platform.EOL
 import org.scalatest.{FlatSpec, Matchers}
-import xsbti.{Problem, Severity}
+import xsbti.Severity
 
 import sbt.util.Level
 
 import java.util.Optional
 
-class BasicConciseReporterSpec
+class DefaultReporterSpec
     extends FlatSpec
     with Matchers
     with CompilerSpec
-    with ConciseReporterSpec {
-  s"A `ConciseReporter` running $scalaVersion" should "collect errors" in collectMessagesFor(
+    with ReporterSpec {
+  s"A `Reporter` running $scalaVersion" should "collect errors" in collectMessagesFor(
     "foobar") { (problems, messages) =>
     problems should have length 1
     messages should have length 3
