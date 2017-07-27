@@ -1,17 +1,43 @@
 package sbt.errorssummary
 @target(Scala)
 
+## General configuration for the formats.
+## Formats are supposed to be opinionated, and they are free to ignore any
+## of those settings.
 type ReporterConfig {
-    colors: Boolean!                = true                                         @since("0.0.1")
-    shortenPaths: Boolean!          = true                                         @since("0.0.1")
-    columnNumbers: Boolean!         = false                                        @since("0.0.1")
-    reverseOrder: Boolean!          = false                                        @since("0.5.0")
-    showLegend: Boolean!            = true                                         @since("0.5.0")
-    errorColor: String!             = raw"scala.Console.RED"                       @since("0.5.0")
-    warningColor: String!           = raw"scala.Console.YELLOW"                    @since("0.5.0")
-    infoColor: String!              = raw"scala.Console.CYAN"                      @since("0.5.0")
-    debugColor: String!             = raw"scala.Console.WHITE"                     @since("0.5.0")
-    sourcePathColor: String!        = raw"scala.Console.UNDERLINED"                @since("0.5.0")
-    errorIdColor: String!           = raw"scala.Console.BLUE"                      @since("0.5.0")
-    format: ReporterFormatFactory!  = raw"sbt.errorssummary.DefaultReporterFormat" @since("0.7.0")
+    ## `true` to enable colors, `false` to disable them.
+    colors: Boolean! = true @since("0.0.1")
+
+    ## `true` to strip the base directory, `false` to show the full path.
+    shortenPaths: Boolean! = true @since("0.0.1")
+
+    ## `true` to show the column number, `false` to hide it.
+    columnNumbers: Boolean! = false @since("0.0.1")
+
+    ## `true` to show the errors in reverse order, `false` to show them in FIFO order.
+    reverseOrder: Boolean! = false @since("0.5.0")
+
+    ## `true` to show a legend explaining the output of the reporter, `false` to hide it.
+    showLegend: Boolean! = true @since("0.5.0")
+
+    ## The color to use to show errors.
+    errorColor: String! = raw"scala.Console.RED" @since("0.5.0")
+
+    ## The color to use to show warnings.
+    warningColor: String! = raw"scala.Console.YELLOW" @since("0.5.0")
+
+    ## The color to use to show information messages.
+    infoColor: String! = raw"scala.Console.CYAN" @since("0.5.0")
+
+    ## The color to use to show debug messages.
+    debugColor: String! = raw"scala.Console.WHITE" @since("0.5.0")
+
+    ## The color to use to highlight the path where a message was triggered.
+    sourcePathColor: String! = raw"scala.Console.UNDERLINED" @since("0.5.0")
+
+    ## The color to use to show an error ID.
+    errorIdColor: String! = raw"scala.Console.BLUE" @since("0.5.0")
+
+    ## The format to use.
+    format: ReporterFormatFactory! = raw"sbt.errorssummary.DefaultReporterFormat" @since("0.7.0")
 }
