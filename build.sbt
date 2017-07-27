@@ -24,7 +24,7 @@ addCommandAlias(
       "project /").mkString(";", ";", ""))
 
 val sharedSettings = Seq(
-  version := "0.6.0",
+  version := "0.7.0-SNAPSHOT",
   organization := "org.duhemm",
   scalaVersion := scala212,
   scalacOptions ++=
