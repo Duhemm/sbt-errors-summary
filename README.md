@@ -1,4 +1,4 @@
-# sbt-errors-summary
+# sbt-errors-summary for sbt 0.13
 
 A simple plugin that makes the error reporter a bit more concise.
 
@@ -41,7 +41,7 @@ To enable this plugin globally, simply put the following in
 `~/.sbt/0.13/plugins/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.5.0")
+addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.6.0")
 ```
 
 You can also enable it for a specific project by putting the same line in
@@ -112,6 +112,9 @@ The supported configuration options include:
    ```
 
 # Changelog
+
+## 0.6.0
+ - Cross publish for sbt 1.0
 
 ## 0.5.0
  - Add `reporterConfig` key to configure the reporter. See examples in previous section.

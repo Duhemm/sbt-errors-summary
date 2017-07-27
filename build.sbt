@@ -8,11 +8,13 @@ addCommandAlias(
   "setupTests",
   Seq("project testCompiler", "+ compile", "project /").mkString(";", ";", ""))
 
+bintrayReleaseOnPublish := false
+
 lazy val errorsSummary =
   project
     .in(file("."))
     .settings(
-      version := "0.6.0-SNAPSHOT",
+      version := "0.6.0",
       sbtPlugin := true,
       organization := "org.duhemm",
       name := "sbt-errors-summary",
