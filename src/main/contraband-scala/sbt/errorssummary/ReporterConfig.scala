@@ -3,17 +3,36 @@
  */
 // DO NOT EDIT MANUALLY
 package sbt.errorssummary
-final class ReporterConfig private (val colors: Boolean,
+
+/**
+ * General configuration for the formats.
+ * Formats are supposed to be opinionated, and they are free to ignore any
+ * of those settings.
+ */
+final class ReporterConfig private (
+                                    /** `true` to enable colors, `false` to disable them. */
+                                    val colors: Boolean,
+                                    /** `true` to strip the base directory, `false` to show the full path. */
                                     val shortenPaths: Boolean,
+                                    /** `true` to show the column number, `false` to hide it. */
                                     val columnNumbers: Boolean,
+                                    /** `true` to show the errors in reverse order, `false` to show them in FIFO order. */
                                     val reverseOrder: Boolean,
+                                    /** `true` to show a legend explaining the output of the reporter, `false` to hide it. */
                                     val showLegend: Boolean,
+                                    /** The color to use to show errors. */
                                     val errorColor: String,
+                                    /** The color to use to show warnings. */
                                     val warningColor: String,
+                                    /** The color to use to show information messages. */
                                     val infoColor: String,
+                                    /** The color to use to show debug messages. */
                                     val debugColor: String,
+                                    /** The color to use to highlight the path where a message was triggered. */
                                     val sourcePathColor: String,
+                                    /** The color to use to show an error ID. */
                                     val errorIdColor: String,
+                                    /** The format to use. */
                                     val format: ReporterFormatFactory)
     extends Serializable {
 
