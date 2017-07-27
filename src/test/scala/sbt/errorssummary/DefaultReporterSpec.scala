@@ -8,7 +8,7 @@ import sbt.util.Level
 
 import java.util.Optional
 
-class BasicReporterSpec
+class DefaultReporterSpec
     extends FlatSpec
     with Matchers
     with CompilerSpec
