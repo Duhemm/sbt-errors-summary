@@ -39,8 +39,9 @@ class ScalacFormat(reporter: ConfigurableReporter)
     else {
       val out          = new StringBuilder
       val sourcePrefix = jo2o(pos.sourcePath).getOrElse("")
+      val columnNumber = jo2o(pos.pointer).map(_.toInt + 1).getOrElse(1)
       val lineNumberString = jo2o(pos.line)
-        .map(":" + _ + ":")
+        .map(":" + _ + ":" + columnNumber + ":")
         .getOrElse(":") + " "
       out.append(sourcePrefix + lineNumberString + msg + EOL)
       val lineContent = pos.lineContent
