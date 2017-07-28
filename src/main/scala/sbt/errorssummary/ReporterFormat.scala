@@ -1,10 +1,11 @@
 package sbt.errorssummary
 
-import xsbti.Severity
+import xsbti.{Maybe, Position, Severity}
 import scala.Console.RESET
 import scala.compat.Platform.EOL
 
 import java.io.File
+import java.util.Optional
 
 /**
  * Describes how messages should be formatted by a `ConfigurableReporter`.
@@ -79,4 +80,23 @@ abstract class ReporterFormat(reporter: ConfigurableReporter) {
       absolutePath.map(_.stripPrefix(reporter.base))
     else absolutePath
   }
+
+  /**
+   * Returns spaces to fix alignment given the `severity`.
+   */
+  protected def extraSpace(severity: Severity): String =
+    severity match {
+      case Severity.Warn => " "
+      case Severity.Info => " "
+      case _             => ""
+    }
+
+  protected implicit class MyPosition(position: Position) {
+    def pfile: Option[String]   = toOption(position.sourceFile).flatMap(showPath)
+    def pline: Option[Int]      = toOption(position.line).map(_.toInt)
+    def lineOffset: Option[Int] = toOption(position.pointerSpace).map(_.length)
+  }
+
+  protected def toOption[T](m: Maybe[T]): Option[T] =
+    if (m.isDefined) Some(m.get) else None
 }

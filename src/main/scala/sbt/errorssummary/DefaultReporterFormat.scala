@@ -1,6 +1,5 @@
 package sbt.errorssummary
 
-import xsbti.{Maybe, Position, Severity}
 import scala.compat.Platform.EOL
 
 /**
@@ -19,46 +18,43 @@ object DefaultReporterFormat extends ReporterFormatFactory {
 class DefaultReporterFormat(reporter: ConfigurableReporter)
     extends ReporterFormat(reporter) {
 
-  override def formatProblem(problem: Problem): String = {
-    val file   = problem.position.pfile
-    val line   = problem.position.pline
-    val offset = problem.position.poffset
-
-    val noString = Option.empty[String]
-    val (position, lineContent, pointer, prefix) =
-      file.fold((noString, noString, noString, "")) { f =>
-        val position = colored(reporter.config.sourcePathColor, f)
-        val lineContent =
-          Option(problem.position.lineContent)
-            .filter(_.nonEmpty)
-        val pointer = toOption(problem.position.pointerSpace).map { sp =>
-          s"$sp^"
-        }
-        val prefix = s"${extraSpace(problem.severity)}[E${problem.id}] "
-
-        (Some(position), lineContent, pointer, prefix)
-      }
-
-    val lineCol = {
-      val lineText = line.fold("") { l =>
-        s"L$l:"
-      }
-      val colText =
-        offset.filter(_ => reporter.config.columnNumbers).fold("") { c =>
-          s"C${c + 1}:"
-        }
-
-      s"$lineText$colText"
+  protected def formatSourcePath(problem: Problem): Option[String] =
+    problem.position.pfile.map { f =>
+      colored(reporter.config.sourcePathColor, f)
     }
 
-    val errorPosition = prefixed(
-      colorFor(problem),
-      lineCol,
-      List(lineContent, pointer).flatten.mkString(EOL))
+  protected def formatSource(problem: Problem): Option[String] =
+    for {
+      line <- Option(problem.position.lineContent).filter(_.nonEmpty)
+      sp   <- toOption(problem.position.pointerSpace)
+    } yield {
+      s"""$line
+         |$sp^""".stripMargin
+    }
+
+  protected def formatMessage(problem: Problem): Option[String] =
+    Some(problem.message)
+
+  override def formatProblem(problem: Problem): String = {
+    val line = toOption(problem.position.line).map("L" + _).getOrElse("")
+    val col = toOption(problem.position.pointer) match {
+      case Some(offset) if reporter.config.columnNumbers => "C" + (offset + 1)
+      case _                                             => ""
+    }
+
+    val sourceCode =
+      formatSource(problem).map { s =>
+        val prefix = line + col
+        prefixed(colorFor(problem),
+                 if (prefix.nonEmpty) prefix + ": " else "",
+                 s)
+      }
+
     val text =
-      List(position, Some(problem.message), Some(errorPosition)).flatten
+      List(formatSourcePath(problem), formatMessage(problem), sourceCode).flatten
         .mkString(EOL)
 
+    val prefix = s"${extraSpace(problem.severity)}[E${problem.id}] "
     prefixed(reporter.config.errorIdColor, prefix, text)
   }
 
@@ -92,16 +88,6 @@ class DefaultReporterFormat(reporter: ConfigurableReporter)
   }
 
   /**
-   * Returns spaces to fix alignment given the `severity`.
-   */
-  private def extraSpace(severity: Severity): String =
-    severity match {
-      case Severity.Warn => " "
-      case Severity.Info => " "
-      case _             => ""
-    }
-
-  /**
    * Shows the line at which `problem` occured and the id of the problem.
    *
    * @param problem The problem to show
@@ -115,12 +101,4 @@ class DefaultReporterFormat(reporter: ConfigurableReporter)
         colored(reporter.config.errorIdColor, s" [E${problem.id}]")
     }
 
-  private implicit class MyPosition(position: Position) {
-    def pfile: Option[String] = toOption(position.sourceFile).flatMap(showPath)
-    def pline: Option[Int]    = toOption(position.line).map(_.toInt)
-    def poffset: Option[Int]  = toOption(position.offset).map(_.toInt)
-  }
-
-  private def toOption[T](m: Maybe[T]): Option[T] =
-    if (m.isDefined) Some(m.get) else None
 }
