@@ -1,9 +1,9 @@
 import sbt.internal.inc.{IfMissing, ZincComponentManager, ZincUtil}
 
 val scala210    = "2.10.6"
-val scala211    = "2.11.11"
-val scala212    = "2.12.2"
-val zincVersion = "1.0.0-X20"
+val scala211    = "2.11.12"
+val scala212    = "2.12.7"
+val zincVersion = "1.2.4"
 
 val testVersions = Seq(scala210, scala211, scala212)
 val Test210      = config("Test210")
