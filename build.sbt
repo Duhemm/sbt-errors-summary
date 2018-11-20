@@ -24,15 +24,25 @@ addCommandAlias(
       "project /").mkString(";", ";", "")
 )
 
+inThisBuild(List(
+  licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+  // These are normal sbt settings to configure for release, skip if already defined
+  homepage := Some(url("https://github.com/Duhemm/sbt-errors-summary")),
+  developers := List(Developer("@Duhemm", "Martin Duhem", "martin.duhem@gmail.com", url("https://github.com/Duhemm"))),
+  scmInfo := Some(ScmInfo(url("https://github.com/Duhemm/sbt-errors-summary"), "scm:git:git@github.com:Duhemm/sbt-errors-summary.git")),
+
+  // These are the sbt-release-early settings to configure
+  pgpPublicRing := file("./travis/local.pubring.asc"),
+  pgpSecretRing := file("./travis/local.secring.asc"),
+  releaseEarlyWith := BintrayPublisher
+))
+
 val sharedSettings = Seq(
-  version := "0.7.0-SNAPSHOT",
   organization := "org.duhemm",
   scalaVersion := scala212,
   scalacOptions ++=
     Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
 )
-
-bintrayReleaseOnPublish := false
 
 lazy val errorsSummary =
   project
@@ -42,7 +52,6 @@ lazy val errorsSummary =
       name := "sbt-errors-summary",
       description := "sbt plugin to show a summary of compilation messages.",
       sbtPlugin := true,
-      licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % Test,
       sourceManaged in (Compile, generateContrabands) := baseDirectory.value / "src" / "main" / "contraband-scala"
     )
