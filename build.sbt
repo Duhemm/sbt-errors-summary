@@ -1,4 +1,5 @@
-import sbt.internal.inc.{IfMissing, ZincComponentManager, ZincUtil}
+import build.CompilerUtils
+import sbt.internal.inc.ZincUtil
 
 val scala210    = "2.10.6"
 val scala211    = "2.11.12"
@@ -56,12 +57,11 @@ lazy val testCompiler =
       sharedSettings,
       crossScalaVersions := testVersions,
       libraryDependencies += "org.scala-sbt" % "compiler-interface" % zincVersion % Provided,
-      libraryDependencies ++= compilerDependencies(scalaVersion.value,
-                                                   Provided),
+      libraryDependencies ++= CompilerUtils.compilerDependencies(scalaVersion.value, Provided),
       // We need the compiled bridge on the classpath because `DelegatingReporter` moved from
       // compile-interface to the implementation of the bridge.
       unmanagedClasspath in Compile += {
-        val ci = getCompilerInterface(
+        val ci = CompilerUtils.getCompilerInterface(
           appConfiguration.value,
           ZincUtil.getDefaultBridgeModule(scalaVersion.value),
           streams.value.log,
@@ -95,7 +95,7 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
   val testConfig   = configs(scalaVersion)
   inConfig(testConfig)(Defaults.testSettings) ++
     Seq(
-      libraryDependencies ++= compilerDependencies(scalaVersion, testConfig),
+      libraryDependencies ++= CompilerUtils.compilerDependencies(scalaVersion, testConfig),
       ivyConfigurations += testConfig,
       test in testConfig := {
         (test in Test).dependsOn(fullClasspath in testConfig).value
@@ -105,7 +105,7 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
       },
       fullClasspath in testConfig := {
         val ci =
-          getCompilerInterface(appConfiguration.value,
+          CompilerUtils.getCompilerInterface(appConfiguration.value,
                                ZincUtil.getDefaultBridgeModule(scalaVersion),
                                streams.value.log,
                                scalaVersion)
@@ -121,25 +121,3 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
     )
 }
 
-def getCompilerInterface(app: xsbti.AppConfiguration,
-                         sourcesModule: ModuleID,
-                         log: Logger,
-                         scalaVersion: String): File = {
-  val launcher = app.provider.scalaProvider.launcher
-  val componentManager = new ZincComponentManager(launcher.globalLock,
-                                                  app.provider.components,
-                                                  Option(launcher.ivyHome),
-                                                  log)
-  val binSeparator = "-bin_" // Keep in sync with `ZincComponentCompiler.binSeparator`
-  val javaVersion  = sys.props("java.class.version")
-  val id =
-    s"${sourcesModule.organization}-${sourcesModule.name}-${sourcesModule.revision}${binSeparator}${scalaVersion}__${javaVersion}"
-  componentManager.file(id)(IfMissing.Fail)
-}
-
-def compilerDependencies(scalaVersion: String,
-                         config: Configuration): Seq[ModuleID] = Seq(
-  "org.scala-lang" % "scala-compiler" % scalaVersion % config,
-  "org.scala-lang" % "scala-reflect"  % scalaVersion % config,
-  "org.scala-lang" % "scala-library"  % scalaVersion % config
-)
