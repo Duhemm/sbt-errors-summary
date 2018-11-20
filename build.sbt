@@ -34,7 +34,8 @@ inThisBuild(List(
   // These are the sbt-release-early settings to configure
   pgpPublicRing := file("./travis/local.pubring.asc"),
   pgpSecretRing := file("./travis/local.secring.asc"),
-  releaseEarlyWith := BintrayPublisher
+  releaseEarlyWith := BintrayPublisher,
+  releaseEarlyEnableSyncToMaven := false
 ))
 
 val sharedSettings = Seq(
