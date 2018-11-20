@@ -54,7 +54,9 @@ lazy val errorsSummary =
       description := "sbt plugin to show a summary of compilation messages.",
       sbtPlugin := true,
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-      sourceManaged in (Compile, generateContrabands) := baseDirectory.value / "src" / "main" / "contraband-scala"
+      sourceManaged in (Compile, generateContrabands) := baseDirectory.value / "src" / "main" /
+      "contraband-scala",
+      publishMavenStyle := false
     )
     .settings(testVersions.flatMap(testSetup))
     .enablePlugins(ContrabandPlugin)
