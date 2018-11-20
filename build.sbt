@@ -1,9 +1,10 @@
-import sbt.internal.inc.{IfMissing, ZincComponentManager, ZincUtil}
+import build.CompilerUtils
+import sbt.internal.inc.ZincUtil
 
 val scala210    = "2.10.6"
-val scala211    = "2.11.11"
-val scala212    = "2.12.2"
-val zincVersion = "1.0.0-X20"
+val scala211    = "2.11.12"
+val scala212    = "2.12.7"
+val zincVersion = "1.2.4"
 
 val testVersions = Seq(scala210, scala211, scala212)
 val Test210      = config("Test210")
@@ -23,15 +24,25 @@ addCommandAlias(
       "project /").mkString(";", ";", "")
 )
 
+inThisBuild(List(
+  licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+  // These are normal sbt settings to configure for release, skip if already defined
+  homepage := Some(url("https://github.com/Duhemm/sbt-errors-summary")),
+  developers := List(Developer("@Duhemm", "Martin Duhem", "martin.duhem@gmail.com", url("https://github.com/Duhemm"))),
+  scmInfo := Some(ScmInfo(url("https://github.com/Duhemm/sbt-errors-summary"), "scm:git:git@github.com:Duhemm/sbt-errors-summary.git")),
+
+  // These are the sbt-release-early settings to configure
+  pgpPublicRing := file("./travis/local.pubring.asc"),
+  pgpSecretRing := file("./travis/local.secring.asc"),
+  releaseEarlyWith := BintrayPublisher
+))
+
 val sharedSettings = Seq(
-  version := "0.7.0-SNAPSHOT",
   organization := "org.duhemm",
   scalaVersion := scala212,
   scalacOptions ++=
     Seq("-deprecation", "-feature", "-unchecked", "-Xlint")
 )
-
-bintrayReleaseOnPublish := false
 
 lazy val errorsSummary =
   project
@@ -41,7 +52,6 @@ lazy val errorsSummary =
       name := "sbt-errors-summary",
       description := "sbt plugin to show a summary of compilation messages.",
       sbtPlugin := true,
-      licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % Test,
       sourceManaged in (Compile, generateContrabands) := baseDirectory.value / "src" / "main" / "contraband-scala"
     )
@@ -56,12 +66,11 @@ lazy val testCompiler =
       sharedSettings,
       crossScalaVersions := testVersions,
       libraryDependencies += "org.scala-sbt" % "compiler-interface" % zincVersion % Provided,
-      libraryDependencies ++= compilerDependencies(scalaVersion.value,
-                                                   Provided),
+      libraryDependencies ++= CompilerUtils.compilerDependencies(scalaVersion.value, Provided),
       // We need the compiled bridge on the classpath because `DelegatingReporter` moved from
       // compile-interface to the implementation of the bridge.
       unmanagedClasspath in Compile += {
-        val ci = getCompilerInterface(
+        val ci = CompilerUtils.getCompilerInterface(
           appConfiguration.value,
           ZincUtil.getDefaultBridgeModule(scalaVersion.value),
           streams.value.log,
@@ -95,7 +104,7 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
   val testConfig   = configs(scalaVersion)
   inConfig(testConfig)(Defaults.testSettings) ++
     Seq(
-      libraryDependencies ++= compilerDependencies(scalaVersion, testConfig),
+      libraryDependencies ++= CompilerUtils.compilerDependencies(scalaVersion, testConfig),
       ivyConfigurations += testConfig,
       test in testConfig := {
         (test in Test).dependsOn(fullClasspath in testConfig).value
@@ -105,7 +114,7 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
       },
       fullClasspath in testConfig := {
         val ci =
-          getCompilerInterface(appConfiguration.value,
+          CompilerUtils.getCompilerInterface(appConfiguration.value,
                                ZincUtil.getDefaultBridgeModule(scalaVersion),
                                streams.value.log,
                                scalaVersion)
@@ -121,25 +130,3 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
     )
 }
 
-def getCompilerInterface(app: xsbti.AppConfiguration,
-                         sourcesModule: ModuleID,
-                         log: Logger,
-                         scalaVersion: String): File = {
-  val launcher = app.provider.scalaProvider.launcher
-  val componentManager = new ZincComponentManager(launcher.globalLock,
-                                                  app.provider.components,
-                                                  Option(launcher.ivyHome),
-                                                  log)
-  val binSeparator = "-bin_" // Keep in sync with `ZincComponentCompiler.binSeparator`
-  val javaVersion  = sys.props("java.class.version")
-  val id =
-    s"${sourcesModule.organization}-${sourcesModule.name}-${sourcesModule.revision}${binSeparator}${scalaVersion}__${javaVersion}"
-  componentManager.file(id)(IfMissing.Fail)
-}
-
-def compilerDependencies(scalaVersion: String,
-                         config: Configuration): Seq[ModuleID] = Seq(
-  "org.scala-lang" % "scala-compiler" % scalaVersion % config,
-  "org.scala-lang" % "scala-reflect"  % scalaVersion % config,
-  "org.scala-lang" % "scala-library"  % scalaVersion % config
-)

@@ -1,4 +1,4 @@
-# sbt-errors-summary for sbt 1.0
+# sbt-errors-summary
 
 A simple plugin that makes the error reporter a bit more concise.
 
@@ -38,7 +38,7 @@ Side by side comparison (this plugin on the left, origin on the right):
 # Installation
 
 To enable this plugin globally, simply put the following in
-`~/.sbt/0.13/plugins/plugins.sbt`:
+`~/.sbt/1.0/plugins/plugins.sbt`:
 
 ```scala
 addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.6.0")
@@ -54,7 +54,7 @@ are reported. The configuration can be accessed via the `reporterConfig` setting
 A configuration is represented by an instance of a `ReporterConfig`, which is
 [generated from a Contraband schema](https://github.com/Duhemm/sbt-errors-summary/blob/master/src/main/contraband-scala/sbt/errorssummary/ReporterConfig.scala).
 
-The examples can be copy pasted directly inside you global settings in sbt (`~/.sbt/0.13/global.sbt`)
+The examples can be copy pasted directly inside you global settings in sbt (`~/.sbt/1.0/global.sbt`)
 or inside your build definition. If you enabled this plugin globally and want to configure it globally,
 you'll also need to add the following import:
 
