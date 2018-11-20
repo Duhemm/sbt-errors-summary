@@ -43,7 +43,7 @@ To enable this plugin globally, simply put the following in
 `~/.sbt/1.0/plugins/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.6.1")
+addSbtPlugin("org.duhemm" % "sbt-errors-summary" % "0.6.2")
 ```
 
 You can also enable it for a specific project by putting the same line in
@@ -129,7 +129,7 @@ The supported configuration options include:
 
 # Changelog
 
-## 0.6.1
+## 0.6.2
  - Drop support for sbt 0.13
 
 ## 0.6.0
