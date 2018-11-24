@@ -63,8 +63,8 @@ class Compiler(reporter: Reporter) extends CompilerAPI {
    */
   private def wrap(code: String): (String, xsbti.Position => xsbti.Position) = {
     if (code startsWith "import") {
-      val Array(imp, rest @ _ *) = code.split("\n")
-      val (wrapped, fn)          = wrap(rest.mkString("\n"))
+      val Array(imp, rest @ _*) = code.split("\n")
+      val (wrapped, fn)         = wrap(rest.mkString("\n"))
       (imp + "\n" + wrapped, fn)
     } else if (code.startsWith("package") || code.startsWith("class") || code
                  .startsWith("object")) {
