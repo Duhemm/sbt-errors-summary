@@ -24,19 +24,25 @@ addCommandAlias(
       "project /").mkString(";", ";", "")
 )
 
-inThisBuild(List(
-  licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
-  // These are normal sbt settings to configure for release, skip if already defined
-  homepage := Some(url("https://github.com/Duhemm/sbt-errors-summary")),
-  developers := List(Developer("@Duhemm", "Martin Duhem", "martin.duhem@gmail.com", url("https://github.com/Duhemm"))),
-  scmInfo := Some(ScmInfo(url("https://github.com/Duhemm/sbt-errors-summary"), "scm:git:git@github.com:Duhemm/sbt-errors-summary.git")),
-
-  // These are the sbt-release-early settings to configure
-  pgpPublicRing := file("./travis/local.pubring.asc"),
-  pgpSecretRing := file("./travis/local.secring.asc"),
-  releaseEarlyWith := BintrayPublisher,
-  releaseEarlyEnableSyncToMaven := false
-))
+inThisBuild(
+  List(
+    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+    // These are normal sbt settings to configure for release, skip if already defined
+    homepage := Some(url("https://github.com/Duhemm/sbt-errors-summary")),
+    developers := List(
+      Developer("@Duhemm",
+                "Martin Duhem",
+                "martin.duhem@gmail.com",
+                url("https://github.com/Duhemm"))),
+    scmInfo := Some(
+      ScmInfo(url("https://github.com/Duhemm/sbt-errors-summary"),
+              "scm:git:git@github.com:Duhemm/sbt-errors-summary.git")),
+    // These are the sbt-release-early settings to configure
+    pgpPublicRing := file("./travis/local.pubring.asc"),
+    pgpSecretRing := file("./travis/local.secring.asc"),
+    releaseEarlyWith := BintrayPublisher,
+    releaseEarlyEnableSyncToMaven := false
+  ))
 
 val sharedSettings = Seq(
   organization := "org.duhemm",
@@ -55,7 +61,7 @@ lazy val errorsSummary =
       sbtPlugin := true,
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % Test,
       sourceManaged in (Compile, generateContrabands) := baseDirectory.value / "src" / "main" /
-      "contraband-scala",
+        "contraband-scala",
       publishMavenStyle := false
     )
     .settings(testVersions.flatMap(testSetup))
@@ -69,7 +75,8 @@ lazy val testCompiler =
       sharedSettings,
       crossScalaVersions := testVersions,
       libraryDependencies += "org.scala-sbt" % "compiler-interface" % zincVersion % Provided,
-      libraryDependencies ++= CompilerUtils.compilerDependencies(scalaVersion.value, Provided),
+      libraryDependencies ++= CompilerUtils
+        .compilerDependencies(scalaVersion.value, Provided),
       // We need the compiled bridge on the classpath because `DelegatingReporter` moved from
       // compile-interface to the implementation of the bridge.
       unmanagedClasspath in Compile += {
@@ -107,7 +114,8 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
   val testConfig   = configs(scalaVersion)
   inConfig(testConfig)(Defaults.testSettings) ++
     Seq(
-      libraryDependencies ++= CompilerUtils.compilerDependencies(scalaVersion, testConfig),
+      libraryDependencies ++= CompilerUtils.compilerDependencies(scalaVersion,
+                                                                 testConfig),
       ivyConfigurations += testConfig,
       test in testConfig := {
         (test in Test).dependsOn(fullClasspath in testConfig).value
@@ -117,10 +125,11 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
       },
       fullClasspath in testConfig := {
         val ci =
-          CompilerUtils.getCompilerInterface(appConfiguration.value,
-                               ZincUtil.getDefaultBridgeModule(scalaVersion),
-                               streams.value.log,
-                               scalaVersion)
+          CompilerUtils.getCompilerInterface(
+            appConfiguration.value,
+            ZincUtil.getDefaultBridgeModule(scalaVersion),
+            streams.value.log,
+            scalaVersion)
         val compiler  = (target in testCompiler).value / s"scala-$shortVersion" / "classes"
         val classpath = (externalDependencyClasspath in testConfig).value
         val testcp = (classpath.files :+ compiler :+ ci)
@@ -132,4 +141,3 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
       }
     )
 }
-

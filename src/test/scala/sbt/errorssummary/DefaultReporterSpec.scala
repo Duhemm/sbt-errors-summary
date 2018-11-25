@@ -137,22 +137,21 @@ class DefaultReporterSpec
     val configWithShortenedPaths = defaultConfig.withShortenPaths(true)
     val expectedText             = "[E1] src.scala"
 
-    collectMessagesFor(code, configWithShortenedPaths) {
-      (problems, messages) =>
-        problems should have length 1
+    collectMessagesFor(code, configWithShortenedPaths) { (problems, messages) =>
+      problems should have length 1
 
-        messages should have length 3
-        val (_, msg) = messages.head
-        val lines    = msg.split(EOL)
-        lines(0) shouldBe expectedText
+      messages should have length 3
+      val (_, msg) = messages.head
+      val lines    = msg.split(EOL)
+      lines(0) shouldBe expectedText
 
-        messages.map(_._2).mkString(EOL) shouldBe
-          """[E1] src.scala
-            |     not found: value anError
-            |     L1: anError
-            |         ^
-            |src.scala: L1 [E1]
-            |Legend: Ln = line n, Cn = column n, En = error n""".stripMargin
+      messages.map(_._2).mkString(EOL) shouldBe
+        """[E1] src.scala
+          |     not found: value anError
+          |     L1: anError
+          |         ^
+          |src.scala: L1 [E1]
+          |Legend: Ln = line n, Cn = column n, En = error n""".stripMargin
     }
   }
 
