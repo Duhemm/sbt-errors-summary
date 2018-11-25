@@ -6,6 +6,15 @@ I find it useful when doing refactoring: I get a lot of compilation errors, and 
 time switching between files and looking for line numbers in the error message, when I can
 immediately see what's wrong when looking at the faulty line.
 
+- [Overview](#Overview)
+- [Installation](#Installation)
+- [Configuration](#Configuration)
+- [Contributing](#Contributing)
+- [Maintainers](#Maintainers)
+- [Changelog](#Changelog)
+
+# Overview
+
 This plugin helps by summarizing all the errors per file.
 
 Side by side comparison (this plugin on the left, origin on the right):
@@ -126,6 +135,16 @@ The supported configuration options include:
    ```scala
    reporterConfig := reporterConfig.value.withShowLegend(false)
    ```
+
+# Contributing
+
+Information is available in the [contributing guide](blob/master/CONTRIBUTING.md)
+
+# Maintainers
+
+The current maintainers (people who can merge pull requests) are:
+
+- Martin Duhem - [@Duhemm](https://github.com/Duhemm)
 
 # Changelog
 
