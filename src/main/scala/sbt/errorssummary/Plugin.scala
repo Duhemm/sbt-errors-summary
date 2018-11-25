@@ -34,10 +34,20 @@ object Plugin extends AutoPlugin {
 
   private val reporterSettings = Seq(
     compilerReporter in compile := {
-      val logger  = streams.value.log
-      val baseDir = sys.props("user.dir") + File.separator
-      val spms    = Defaults.foldMappers(sourcePositionMappers.value)
-      val config  = (reporterConfig in compile).value
+      val logger     = streams.value.log
+      val baseDir    = sys.props("user.dir") + File.separator
+      val spms       = Defaults.foldMappers(sourcePositionMappers.value)
+      val baseConfig = (reporterConfig in compile).value
+
+      // When run in intellij, Emacs or when `sbti.errorssummary.full.paths = true`,
+      // don't shorten paths.
+      val forceFullPaths =
+        sys.props.contains("idea.runid") ||
+          sys.env.contains("INSIDE_EMACS") ||
+          sys.props.getOrElse("sbt.errorssummary.full.paths", "") == "true"
+
+      val config =
+        baseConfig.withShortenPaths(baseConfig.shortenPaths && !forceFullPaths)
 
       val reporter =
         new Reporter(logger, baseDir, spms, config)

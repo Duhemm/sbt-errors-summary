@@ -101,6 +101,11 @@ The supported configuration options include:
    reporterConfig := reporterConfig.value.withShortenPaths(false)
    ```
 
+   Note (0.6.4+): For compatibility with IntelliJ and ENSIME's sbt-mode, the paths will never be shortened when:
+    - the system property `idea.run` is set, or
+    - the environment variable `INSIDE_EMACS` is set, or
+    - the system property `sbt.errorssummary.full.paths` is set.
+
  - `columnNumbers: Boolean = false`:
    Determines whether the reporter will show the column number at which an error has been
    recorded, Defaults to `false`.
