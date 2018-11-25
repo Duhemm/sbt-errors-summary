@@ -145,6 +145,7 @@ Information is available in the [contributing guide](blob/master/CONTRIBUTING.md
 The current maintainers (people who can merge pull requests) are:
 
 - Martin Duhem - [@Duhemm](https://github.com/Duhemm)
+- Vladyslav Pekker - [@agilesteel](https://github.com/agilesteel)
 
 # Changelog
 
