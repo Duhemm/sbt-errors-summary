@@ -50,7 +50,7 @@ abstract class ReporterFormat(reporter: ConfigurableReporter) {
   protected def prefixed(prefixColor: String,
                          prefix: String,
                          paragraph: String): String =
-    paragraph.lines
+    paragraph.linesIterator
       .mkString(colored(prefixColor, prefix), EOL + " " * prefix.length, "")
 
   /**

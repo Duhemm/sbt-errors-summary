@@ -1,5 +1,5 @@
 import build.CompilerUtils
-import sbt.internal.inc.ZincUtil
+import sbt.internal.inc.ZincLmUtil
 
 val scala210    = "2.10.6"
 val scala211    = "2.11.12"
@@ -82,7 +82,7 @@ lazy val testCompiler =
       unmanagedClasspath in Compile += {
         val ci = CompilerUtils.getCompilerInterface(
           appConfiguration.value,
-          ZincUtil.getDefaultBridgeModule(scalaVersion.value),
+          ZincLmUtil.getDefaultBridgeModule(scalaVersion.value),
           streams.value.log,
           scalaVersion.value)
         ci
@@ -127,7 +127,7 @@ def testSetup(scalaVersion: String): Seq[Setting[_]] = {
         val ci =
           CompilerUtils.getCompilerInterface(
             appConfiguration.value,
-            ZincUtil.getDefaultBridgeModule(scalaVersion),
+            ZincLmUtil.getDefaultBridgeModule(scalaVersion),
             streams.value.log,
             scalaVersion)
         val compiler  = (target in testCompiler).value / s"scala-$shortVersion" / "classes"
