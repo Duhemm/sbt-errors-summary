@@ -1,17 +1,15 @@
 import build.CompilerUtils
 import sbt.internal.inc.ZincLmUtil
 
-val scala210    = "2.10.6"
-val scala211    = "2.11.12"
-val scala212    = "2.12.7"
+val scala212    = "2.12.13"
+val scala213    = "2.13.5"
 val zincVersion = "1.2.4"
 
-val testVersions = Seq(scala210, scala211, scala212)
-val Test210      = config("Test210")
-val Test211      = config("Test211")
+val testVersions = Seq(scala212, scala213)
 val Test212      = config("Test212")
+val Test213      = config("Test213")
 val configs =
-  Map(scala210 -> Test210, scala211 -> Test211, scala212 -> Test212)
+  Map(scala212 -> Test212, scala213 -> Test213)
 
 addCommandAlias(
   "setupTests",

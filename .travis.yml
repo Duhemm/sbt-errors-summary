@@ -33,7 +33,7 @@ jobs:
 
     - stage: test
       script:
-        - sbt "setupTests" "Test210:test" "Test211:test" "Test212:test"
+        - sbt "setupTests" "Test212:test" "Test213:test"
 
     - stage: release
       script:

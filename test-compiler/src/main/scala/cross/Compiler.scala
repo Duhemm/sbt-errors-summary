@@ -9,7 +9,7 @@ import scala.reflect.internal.util.Position
 
 import scala.tools.nsc.{CompilerCommand, Global}
 import scala.tools.nsc.io.VirtualDirectory
-import scala.tools.nsc.reporters.{AbstractReporter, Reporter => NSCReporter}
+import scala.tools.nsc.reporters.{FilteringReporter, Reporter => NSCReporter}
 
 /**
  * Helper object to compile code snippets to a virtual directory.
