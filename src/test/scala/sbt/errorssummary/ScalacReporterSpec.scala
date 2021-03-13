@@ -118,7 +118,7 @@ class ScalacReporterSpec
           else if (scalaVersion.startsWith("2.11"))
             "there was one deprecation warning; re-run with -deprecation for details"
           else
-            "there was one deprecation warning (since 2.10.0); re-run with -deprecation for details"
+            "one deprecation (since 2.10.0); re-run with -deprecation for details"
 
         messages.map(_._2).mkString(EOL) shouldBe
           s"""$deprecationMessage
