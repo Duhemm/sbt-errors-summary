@@ -46,7 +46,9 @@ inThisBuild(
       )
     ),
     scalafixCaching := true,
-    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.3.1-RC3"
+    scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.3.1-RC3",
+    crossScalaVersions := List(scala212),
+    publish / skip := true
   )
 )
 
@@ -76,6 +78,7 @@ lazy val errorsSummary =
     .in(file("sbt-errors-summary"))
     .settings(
       sharedSettings,
+      publish / skip := false,
       name := "sbt-errors-summary",
       description := "sbt plugin to show a summary of compilation messages.",
       sbtPlugin := true,
@@ -92,7 +95,6 @@ lazy val testCompiler =
     .in(file("test-compiler"))
     .settings(
       sharedSettings,
-      publish / skip := true,
       crossScalaVersions := testVersions,
       libraryDependencies += "org.scala-sbt" % "compiler-interface" % zincVersion % Provided,
       libraryDependencies ++= CompilerUtils
@@ -116,7 +118,6 @@ lazy val testAPI =
     .in(file("test-api"))
     .settings(
       sharedSettings,
-      publish / skip := true,
       autoScalaLibrary := false,
       crossPaths := false
     )
@@ -128,7 +129,6 @@ lazy val setupProject =
     .in(file("setup-project"))
     .settings(
       sharedSettings,
-      publish / skip := true,
       crossScalaVersions := testVersions
     )
 
