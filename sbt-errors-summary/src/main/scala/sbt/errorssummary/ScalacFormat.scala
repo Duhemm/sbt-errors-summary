@@ -1,9 +1,11 @@
 package sbt.errorssummary
 
-import xsbti.{Position, Severity}
+import java.util.Optional
+
 import scala.compat.Platform.EOL
 
-import java.util.Optional
+import xsbti.Position
+import xsbti.Severity
 
 object ScalacFormat extends ReporterFormatFactory {
   override def apply(reporter: ConfigurableReporter): ReporterFormat =
@@ -27,7 +29,8 @@ class ScalacFormat(reporter: ConfigurableReporter)
     val warnings = reporter.allProblems.count(_.severity == Severity.Warn)
     if (warnings > 0)
       reporter.logger.warn(
-        countElementsAsString(warnings, "warning") + " found")
+        countElementsAsString(warnings, "warning") + " found"
+      )
     val errors = reporter.allProblems.count(_.severity == Severity.Error)
     if (errors > 0)
       reporter.logger.error(countElementsAsString(errors, "error") + " found")
@@ -48,7 +51,9 @@ class ScalacFormat(reporter: ConfigurableReporter)
       if (!lineContent.isEmpty) {
         out.append(lineContent + EOL)
         for (space <- jo2o(pos.pointerSpace))
-          out.append(space + "^") // pointer to the column position of the error/warning
+          out.append(
+            space + "^"
+          ) // pointer to the column position of the error/warning
       }
       out.toString
     }

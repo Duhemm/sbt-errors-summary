@@ -1,11 +1,13 @@
 package sbt.errorssummary
 
-import scala.compat.Platform.EOL
-import org.scalatest.{FlatSpec, Matchers}
-import xsbti.Severity
-import sbt.util.Level
-
 import java.util.Optional
+
+import scala.compat.Platform.EOL
+
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers
+import sbt.util.Level
+import xsbti.Severity
 
 class ScalacReporterSpec
     extends FlatSpec
@@ -13,7 +15,8 @@ class ScalacReporterSpec
     with CompilerSpec
     with ReporterSpec {
   s"The `ScalacReporter` running $scalaVersion" should "collect errors" in collectMessagesFor(
-    "foobar") { (problems, messages) =>
+    "foobar"
+  ) { (problems, messages) =>
     problems should have length 1
     messages should have length 2
 

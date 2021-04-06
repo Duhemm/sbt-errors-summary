@@ -2,9 +2,10 @@ package sbt
 package errorssummary
 package compiler
 
-import _root_.cross.CompilerAPI
 import java.io.File
 import java.net.URLClassLoader
+
+import _root_.cross.CompilerAPI
 import xsbti.Reporter
 
 object CompilerLoader {

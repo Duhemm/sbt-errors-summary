@@ -1,11 +1,11 @@
 package sbt.errorssummary
 
-import xsbti.Position
-
 import java.io.File
 import java.util.Optional
 
-import org.scalatest.{FlatSpec, Matchers}
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers
+import xsbti.Position
 class SourcePositionMapperSpec
     extends FlatSpec
     with Matchers
@@ -17,7 +17,7 @@ class SourcePositionMapperSpec
       new MyPosition(orig) {
         override def line(): Optional[Integer] =
           orig.line.map(_ + 10)
-    }
+      }
     val logger = new RecordingLogger
     val reporter =
       new Reporter(logger, "/tmp/", linePlus10, defaultConfig)

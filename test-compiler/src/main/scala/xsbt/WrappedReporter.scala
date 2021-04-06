@@ -1,22 +1,28 @@
 package xsbt
 
 import scala.tools.nsc.Settings
-import xsbti.{Position, Problem, Reporter, Severity}
+
+import xsbti.Position
+import xsbti.Problem
+import xsbti.Reporter
+import xsbti.Severity
 
 object WrappedReporter {
-  def apply(settings: Settings,
-            reporter: Reporter,
-            posTransform: Position => Position)
-    : scala.tools.nsc.reporters.Reporter = {
+  def apply(
+      settings: Settings,
+      reporter: Reporter,
+      posTransform: Position => Position
+  ): scala.tools.nsc.reporters.Reporter = {
     val transformedReporter =
       new TransformedPositionsReporter(reporter, posTransform)
     DelegatingReporter(settings, transformedReporter)
   }
 }
 
-private class TransformedPositionsReporter(reporter: Reporter,
-                                           posTransform: Position => Position)
-    extends Reporter {
+private class TransformedPositionsReporter(
+    reporter: Reporter,
+    posTransform: Position => Position
+) extends Reporter {
   def comment(pos: Position, msg: String): Unit =
     reporter.comment(posTransform(pos), msg)
 

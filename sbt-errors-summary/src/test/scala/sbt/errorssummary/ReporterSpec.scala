@@ -9,12 +9,12 @@ trait ReporterSpec { self: CompilerSpec =>
   def defaultConfig: ReporterConfig =
     ReporterConfig(colors = false, shortenPaths = false, columnNumbers = false)
 
-  def collectMessagesFor[T](code: String,
-                            config: ReporterConfig = defaultConfig,
-                            filePath: Optional[String] =
-                              Optional.of("/tmp/src.scala"),
-                            base: String = "/tmp/")(
-      fn: (Array[xsbti.Problem], Seq[(Level.Value, String)]) => T): T = {
+  def collectMessagesFor[T](
+      code: String,
+      config: ReporterConfig = defaultConfig,
+      filePath: Optional[String] = Optional.of("/tmp/src.scala"),
+      base: String = "/tmp/"
+  )(fn: (Array[xsbti.Problem], Seq[(Level.Value, String)]) => T): T = {
     val logger   = new RecordingLogger
     val reporter = new Reporter(logger, base, identity, config)
     compile(reporter, code, Seq.empty, filePath)

@@ -1,7 +1,8 @@
 package sbt
 package errorssummary
 
-import xsbti.{Position, Severity}
+import xsbti.Position
+import xsbti.Severity
 
 /**
  * A flexible reporter whose configuration is provided by a `ReporterConfig`.
@@ -13,11 +14,12 @@ import xsbti.{Position, Severity}
  * @param sourcePositionMapper A function that transforms positions.
  * @param config The configuration for this reporter.
  */
-private final class Reporter(val logger: Logger,
-                             val base: String,
-                             sourcePositionMapper: Position => Position,
-                             val config: ReporterConfig)
-    extends xsbti.Reporter
+private final class Reporter(
+    val logger: Logger,
+    val base: String,
+    sourcePositionMapper: Position => Position,
+    val config: ReporterConfig
+) extends xsbti.Reporter
     with ConfigurableReporter {
 
   private val format    = config.format(this)

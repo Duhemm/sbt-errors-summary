@@ -18,7 +18,8 @@ class ClassicFormat(reporter: ConfigurableReporter)
 
     val sourcePath =
       formatSourcePath(problem).map(
-        _ + ":" + colored(colorFor(problem), s"$line$col"))
+        _ + ":" + colored(colorFor(problem), s"$line$col")
+      )
 
     val text =
       List(sourcePath, formatMessage(problem), formatSource(problem)).flatten
