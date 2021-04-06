@@ -45,11 +45,6 @@ inThisBuild(
         "scm:git:git@github.com:Duhemm/sbt-errors-summary.git"
       )
     ),
-    // These are the sbt-release-early settings to configure
-    pgpPublicRing := file("./travis/local.pubring.asc"),
-    pgpSecretRing := file("./travis/local.secring.asc"),
-    releaseEarlyWith := BintrayPublisher,
-    releaseEarlyEnableSyncToMaven := false,
     scalafixCaching := true,
     scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.3.1-RC3"
   )
@@ -60,7 +55,7 @@ def on212Only[T](scalaBinaryVersion: String, if212: => T, otherwise: => T) =
   else otherwise
 
 val sharedSettings = Seq(
-  organization := "org.duhemm",
+  organization := "com.github.duhemm",
   scalaVersion := scala212,
   scalacOptions ++=
     Seq("-deprecation", "-feature", "-unchecked", "-Xlint"),
@@ -86,8 +81,7 @@ lazy val errorsSummary =
       sbtPlugin := true,
       libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % Test,
       sourceManaged in (Compile, generateContrabands) := baseDirectory.value / "src" / "main" /
-        "contraband-scala",
-      publishMavenStyle := false
+        "contraband-scala"
     )
     .settings(testVersions.flatMap(testSetup))
     .enablePlugins(ContrabandPlugin)
@@ -98,6 +92,7 @@ lazy val testCompiler =
     .in(file("test-compiler"))
     .settings(
       sharedSettings,
+      publish / skip := true,
       crossScalaVersions := testVersions,
       libraryDependencies += "org.scala-sbt" % "compiler-interface" % zincVersion % Provided,
       libraryDependencies ++= CompilerUtils
@@ -121,6 +116,7 @@ lazy val testAPI =
     .in(file("test-api"))
     .settings(
       sharedSettings,
+      publish / skip := true,
       autoScalaLibrary := false,
       crossPaths := false
     )
@@ -132,6 +128,7 @@ lazy val setupProject =
     .in(file("setup-project"))
     .settings(
       sharedSettings,
+      publish / skip := true,
       crossScalaVersions := testVersions
     )
 
