@@ -1,18 +1,16 @@
 package sbt
 package errorssummary
 
-import sbt.AutoPlugin
-import sbt.Keys.{
-  compile,
-  compilerReporter,
-  maxErrors,
-  printWarnings,
-  sourcePositionMappers,
-  streams
-}
-import xsbti.Severity
-
 import java.io.File
+
+import sbt.AutoPlugin
+import sbt.Keys.compile
+import sbt.Keys.compilerReporter
+import sbt.Keys.maxErrors
+import sbt.Keys.printWarnings
+import sbt.Keys.sourcePositionMappers
+import sbt.Keys.streams
+import xsbti.Severity
 
 object Plugin extends AutoPlugin {
   override def requires = sbt.plugins.JvmPlugin
@@ -24,9 +22,10 @@ object Plugin extends AutoPlugin {
   }
   import autoImport._
 
-  override def globalSettings: Seq[Setting[_]] = Seq(
-    reporterConfig := ReporterConfig()
-  )
+  override def globalSettings: Seq[Setting[_]] =
+    Seq(
+      reporterConfig := ReporterConfig()
+    )
 
   override def projectSettings: Seq[Setting[_]] =
     inConfig(Compile)(reporterSettings) ++
@@ -59,7 +58,8 @@ object Plugin extends AutoPlugin {
         case a: sbt.internal.inc.Analysis => a
       }
       val problems = analysis.infos.allInfos.values.flatMap(i =>
-        i.getReportedProblems ++ i.getUnreportedProblems)
+        i.getReportedProblems ++ i.getUnreportedProblems
+      )
       val maximumErrors = maxErrors.value
       var errorCount    = 0
 

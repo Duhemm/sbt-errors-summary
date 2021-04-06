@@ -1,10 +1,13 @@
 package sbt.errorssummary
 
-import org.scalatest.{FlatSpec, Matchers}
-import xsbti.{Position, Severity}
+import java.util.Optional
+
 import scala.collection.mutable.Buffer
 
-import java.util.Optional
+import org.scalatest.FlatSpec
+import org.scalatest.Matchers
+import xsbti.Position
+import xsbti.Severity
 
 class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
   "The test framework" should "compile simple snippets" in {
@@ -55,13 +58,17 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
     val code = """val x = 1"""
 
     if (scalaVersion.startsWith("2.10.")) {
-      an[Exception] should be thrownBy compile(new BasicReporter,
-                                               code,
-                                               "-Ywarn-unused-import")
+      an[Exception] should be thrownBy compile(
+        new BasicReporter,
+        code,
+        "-Ywarn-unused-import"
+      )
     } else {
-      noException should be thrownBy compile(new BasicReporter,
-                                             code,
-                                             "-Ywarn-unused-import")
+      noException should be thrownBy compile(
+        new BasicReporter,
+        code,
+        "-Ywarn-unused-import"
+      )
     }
   }
 
@@ -109,10 +116,11 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
     def problems(): Array[xsbti.Problem] =
       msgs.toArray
     def reset(): Unit = msgs.clear()
-    private case class BasicProblem(severity: Severity,
-                                    position: Position,
-                                    message: String)
-        extends xsbti.Problem {
+    private case class BasicProblem(
+        severity: Severity,
+        position: Position,
+        message: String
+    ) extends xsbti.Problem {
       def category(): String = ""
     }
   }

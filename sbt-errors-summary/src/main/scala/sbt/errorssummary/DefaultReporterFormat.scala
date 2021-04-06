@@ -45,13 +45,19 @@ class DefaultReporterFormat(reporter: ConfigurableReporter)
     val sourceCode =
       formatSource(problem).map { s =>
         val prefix = line + col
-        prefixed(colorFor(problem),
-                 if (prefix.nonEmpty) prefix + ": " else "",
-                 s)
+        prefixed(
+          colorFor(problem),
+          if (prefix.nonEmpty) prefix + ": " else "",
+          s
+        )
       }
 
     val text =
-      List(formatSourcePath(problem), formatMessage(problem), sourceCode).flatten
+      List(
+        formatSourcePath(problem),
+        formatMessage(problem),
+        sourceCode
+      ).flatten
         .mkString(EOL)
 
     val prefix = s"${extraSpace(problem.severity)}[E${problem.id}] "

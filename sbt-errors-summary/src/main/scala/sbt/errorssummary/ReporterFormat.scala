@@ -1,11 +1,13 @@
 package sbt.errorssummary
 
-import xsbti.{Position, Severity}
+import java.io.File
+import java.util.Optional
+
 import scala.Console.RESET
 import scala.compat.Platform.EOL
 
-import java.io.File
-import java.util.Optional
+import xsbti.Position
+import xsbti.Severity
 
 /**
  * Describes how messages should be formatted by a `ConfigurableReporter`.
@@ -47,9 +49,11 @@ abstract class ReporterFormat(reporter: ConfigurableReporter) {
    * @param paragraph The block of text to prefix and indent.
    * @return The prefixed and indented paragraph.
    */
-  protected def prefixed(prefixColor: String,
-                         prefix: String,
-                         paragraph: String): String =
+  protected def prefixed(
+      prefixColor: String,
+      prefix: String,
+      paragraph: String
+  ): String =
     paragraph.lines
       .mkString(colored(prefixColor, prefix), EOL + " " * prefix.length, "")
 
