@@ -48,7 +48,9 @@ inThisBuild(
     scalafixCaching := true,
     scalafixDependencies += "com.github.liancheng" %% "organize-imports" % "0.3.1-RC3",
     crossScalaVersions := List(scala212),
-    publish / skip := true
+    publish / skip := true,
+    organization := "com.github.duhemm",
+    sonatypeProfileName := organization.value
   )
 )
 
@@ -57,7 +59,6 @@ def on212Only[T](scalaBinaryVersion: String, if212: => T, otherwise: => T) =
   else otherwise
 
 val sharedSettings = Seq(
-  organization := "com.github.duhemm",
   scalaVersion := scala212,
   scalacOptions ++=
     Seq("-deprecation", "-feature", "-unchecked", "-Xlint"),
