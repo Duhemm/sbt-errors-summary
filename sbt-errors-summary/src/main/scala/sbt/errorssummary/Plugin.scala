@@ -3,13 +3,13 @@ package errorssummary
 
 import java.io.File
 
-import sbt.AutoPlugin
 import sbt.Keys.compile
 import sbt.Keys.compilerReporter
 import sbt.Keys.maxErrors
 import sbt.Keys.printWarnings
 import sbt.Keys.sourcePositionMappers
 import sbt.Keys.streams
+import xsbti.Position
 import xsbti.Severity
 
 object Plugin extends AutoPlugin {
@@ -31,11 +31,23 @@ object Plugin extends AutoPlugin {
     inConfig(Compile)(reporterSettings) ++
       inConfig(Test)(reporterSettings)
 
+  // Method copied (with a small adjustments) from https://github.com/sbt/sbt/blob/571005efa0f1b572dae9a3ebc3f4d1bd1c3a86e7/main/src/main/scala/sbt/Defaults.scala
+  private def foldMappers(mappers: Seq[Position => Option[Position]]) = {
+    mappers.foldRight({ p: Position =>
+      p // Fallback if sourcePositionMappers is empty
+    }) { (mapper, previousPosition) =>
+      { p: Position =>
+        // To each mapper we pass the position with the absolute source (only if reportAbsolutePath = true of course)
+        mapper(p).getOrElse(previousPosition(p))
+      }
+    }
+  }
+
   private val reporterSettings = Seq(
     compilerReporter in compile := {
       val logger     = streams.value.log
       val baseDir    = sys.props("user.dir") + File.separator
-      val spms       = Defaults.foldMappers(sourcePositionMappers.value)
+      val spms       = foldMappers(sourcePositionMappers.value)
       val baseConfig = (reporterConfig in compile).value
 
       // When run in intellij, Emacs or when `sbti.errorssummary.full.paths = true`,
