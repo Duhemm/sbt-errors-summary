@@ -35,11 +35,12 @@ object Plugin extends AutoPlugin {
   private def foldMappers(mappers: Seq[Position => Option[Position]]) = {
     mappers.foldRight({ p: Position =>
       p // Fallback if sourcePositionMappers is empty
-    }) { (mapper, previousPosition) =>
-      { p: Position =>
-        // To each mapper we pass the position with the absolute source (only if reportAbsolutePath = true of course)
-        mapper(p).getOrElse(previousPosition(p))
-      }
+    }) {
+      (mapper, previousPosition) =>
+        { p: Position =>
+          // To each mapper we pass the position with the absolute source (only if reportAbsolutePath = true of course)
+          mapper(p).getOrElse(previousPosition(p))
+        }
     }
   }
 
