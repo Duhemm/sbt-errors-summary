@@ -54,7 +54,7 @@ abstract class ReporterFormat(reporter: ConfigurableReporter) {
       prefix: String,
       paragraph: String
   ): String =
-    paragraph.lines
+    paragraph.linesIterator
       .mkString(colored(prefixColor, prefix), EOL + " " * prefix.length, "")
 
   /**
