@@ -34,21 +34,25 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
     problem.position.line.get shouldBe 1
   }
 
-  it should "compile octal literals iff we're on 2.10" in {
+  it should "accept leading zero in literals iff we're on 2.10 or 2.13" in {
     val code     = """val x = 0123"""
     val reporter = new BasicReporter
     compile(reporter, code)
 
-    reporter.problems() should have length 1
-    val problem = reporter.problems()(0)
-    if (scalaVersion.startsWith("2.10.")) {
+    if (scalaVersion.startsWith("2.13.")) {
+      reporter.problems() should have length 0
+      reporter.hasErrors() shouldBe false
+      reporter.hasWarnings() shouldBe false
+    } else if (scalaVersion.startsWith("2.10.")) {
       reporter.hasErrors() shouldBe false
       reporter.hasWarnings() shouldBe true
+      val problem = reporter.problems()(0)
       problem.severity shouldBe Severity.Warn
       problem.position.line.isPresent shouldBe false
     } else {
       reporter.hasErrors() shouldBe true
       reporter.hasWarnings() shouldBe false
+      val problem = reporter.problems()(0)
       problem.severity shouldBe Severity.Error
       problem.position.line.get shouldBe 1
     }
@@ -57,7 +61,7 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
   it should "not support -Ywarn-unused-import iff we're on 2.10" in {
     val code = """val x = 1"""
 
-    if (scalaVersion.startsWith("2.10.")) {
+    if (scalaVersion.startsWith("2.10.") || scalaVersion.startsWith("2.13.")) {
       an[Exception] should be thrownBy compile(
         new BasicReporter,
         code,
@@ -72,12 +76,12 @@ class SelfSpec extends FlatSpec with Matchers with CompilerSpec {
     }
   }
 
-  it should "not find `SortedMap` if we're not on 2.12" in {
+  it should "not find `SortedMap` if we're not on 2.12 or 2.13" in {
     val code = """val m = scala.collection.mutable.SortedMap"""
 
     val reporter = new BasicReporter
     compile(reporter, code)
-    if (scalaVersion.startsWith("2.12.")) {
+    if (scalaVersion.startsWith("2.12.") || scalaVersion.startsWith("2.13.")) {
       reporter.hasErrors() shouldBe false
       reporter.hasWarnings() shouldBe false
       reporter.problems() should have length 0
