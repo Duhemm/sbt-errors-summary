@@ -155,6 +155,12 @@ The current maintainers (people who can merge pull requests) are:
 
 # Changelog
 
+## 0.6.5
+ - Fixed incompatibility with sbt 1.4.8+ in [#49](https://github.com/Duhemm/sbt-errors-summary/pull/49)
+     by [@note](https://github.com/note)
+ - **sbt-errors-summary is now published under the organization `com.github.duhemm`. Please update your
+   plugins accordingly.**
+
 ## 0.6.3
  - Drop support for sbt 0.13
 
